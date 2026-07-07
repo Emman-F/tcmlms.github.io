@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TCM LMS — Admin Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--green-900:#0f2d16;--green-800:#163d1f;--green-700:#1e5429;--green-600:#276934;--green-500:#2f7d3c;--green-400:#3a9649;--green-100:#c8ecce;--green-50:#eaf5ec;--white:#fff;--gray-50:#f8faf8;--gray-100:#f0f4f1;--gray-200:#dde6de;--gray-300:#c4d0c6;--gray-400:#8fa894;--gray-600:#4d6652;--gray-700:#374d3b;--gray-800:#1e2e21;--red:#dc3545;--red-light:#fdecea;--blue:#1a6bb5;--blue-light:#e8f1fb;--amber:#b45309;--amber-light:#fef3c7;--gold:#c9a84c;--radius-sm:6px;--radius-md:10px;--radius-lg:16px;--sidebar-w:240px;--header-h:60px;}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);}
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--header-h) 1fr;min-height:100vh;}
+.topbar{grid-column:1/-1;background:var(--green-900);display:flex;align-items:center;padding:0 1.25rem 0 0;border-bottom:1px solid var(--green-800);position:sticky;top:0;z-index:50;}
+.topbar-brand{width:var(--sidebar-w);flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 1.25rem;border-right:1px solid rgba(255,255,255,0.07);height:100%;}
+.brand-logo{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);flex-shrink:0;}
+.brand-name{font-size:13px;font-weight:600;color:#fff;}.brand-sub{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.topbar-spacer{flex:1;}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);padding:5px 10px 5px 6px;cursor:pointer;margin-left:8px;}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.uname{font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.85);}.urole{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.sidebar{background:var(--white);border-right:1px solid var(--gray-200);padding:1rem 0;overflow-y:auto;display:flex;flex-direction:column;}
+.nav-section{padding:0 0.75rem;margin-bottom:0.25rem;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);padding:0.5rem 0.5rem 0.35rem;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;text-decoration:none;color:var(--gray-600);font-size:13.5px;transition:background 0.13s,color 0.13s;position:relative;}
+.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.nav-item:hover{background:var(--green-50);color:var(--green-700);}
+.nav-item.active{background:var(--green-50);color:var(--green-700);font-weight:500;}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;border-radius:0 3px 3px 0;background:var(--green-500);}
+.sidebar-bottom{margin-top:auto;padding:0.75rem;border-top:1px solid var(--gray-200);}
+.main{overflow-y:auto;background:var(--gray-50);}
+.page-body{padding:1.75rem;}
+.profile-hero{background:linear-gradient(135deg,#1a1060 0%,#2d2080 100%);border-radius:var(--radius-lg);padding:2rem;display:flex;align-items:center;gap:1.5rem;margin-bottom:1.25rem;position:relative;overflow:hidden;}
+.profile-hero::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);}
+.profile-avatar-lg{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.15);border:3px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.75rem;font-weight:600;color:#fff;flex-shrink:0;position:relative;cursor:pointer;}
+.avatar-edit{position:absolute;bottom:0;right:0;width:24px;height:24px;background:#6d28d9;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;}
+.avatar-edit svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.hero-info{flex:1;position:relative;z-index:1;}
+.hero-name{font-size:1.35rem;font-weight:600;color:#fff;margin-bottom:4px;}
+.hero-id{font-size:13px;color:rgba(255,255,255,0.6);}
+.hero-meta{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;}
+.hero-meta-item{display:flex;align-items:center;gap:6px;font-size:12.5px;color:rgba(255,255,255,0.65);}
+.hero-meta-item svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.stat-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem;}
+.stat-chip{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:.9rem 1rem;text-align:center;}
+.stat-chip-val{font-size:1.4rem;font-weight:600;color:var(--gray-800);line-height:1;}
+.stat-chip-label{font-size:11.5px;color:var(--gray-400);margin-top:3px;}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--gray-200);margin-bottom:1.25rem;}
+.tab-btn{padding:8px 14px;font-size:13.5px;font-weight:500;color:var(--gray-400);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s,border-color 0.15s;}
+.tab-btn:hover{color:var(--green-600);}
+.tab-btn.active{color:var(--green-700);border-bottom-color:var(--green-500);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:12px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--gray-100);}
+.card-title{font-size:14px;font-weight:600;color:var(--gray-800);}
+.card-sub{font-size:12px;color:var(--gray-400);margin-top:2px;}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-400);margin-bottom:12px;margin-top:4px;}
+.form-group{margin-bottom:1rem;}
+.form-group label{display:block;font-size:12.5px;font-weight:500;color:var(--gray-600);margin-bottom:5px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13.5px;font-family:'Inter',sans-serif;color:var(--gray-800);background:#fff;outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--green-400);box-shadow:0 0 0 3px rgba(47,125,60,0.10);}
+.form-group input[readonly]{background:var(--gray-50);color:var(--gray-600);cursor:not-allowed;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.info-row{display:flex;align-items:flex-start;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);}
+.info-row:last-child{border-bottom:none;}
+.info-label{font-size:12.5px;color:var(--gray-400);width:160px;flex-shrink:0;}
+.info-value{font-size:13.5px;color:var(--gray-800);font-weight:500;flex:1;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--gray-100);}
+.toggle-row:last-child{border-bottom:none;}
+.tname{font-size:13.5px;font-weight:500;color:var(--gray-800);}
+.tdesc{font-size:12px;color:var(--gray-400);margin-top:2px;}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--gray-200);border-radius:20px;transition:background 0.2s;}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform 0.2s;}
+.toggle input:checked+.toggle-slider{background:var(--green-500);}
+.toggle input:checked+.toggle-slider::before{transform:translateX(16px);}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:500;}
+.badge.green{background:var(--green-50);color:var(--green-700);}
+.badge.purple{background:#ede9fe;color:#6d28d9;}
+.badge.gray{background:var(--gray-100);color:var(--gray-600);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;border:none;transition:background 0.15s;text-decoration:none;white-space:nowrap;}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.btn-primary{background:var(--green-600);color:#fff;}
+.btn-primary:hover{background:var(--green-700);}
+.btn-secondary{background:#fff;color:var(--gray-700);border:1px solid var(--gray-200);}
+.btn-secondary:hover{background:var(--gray-50);}
+.btn-danger{background:var(--red-light);color:#b91c1c;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.pw-strength{height:4px;border-radius:20px;background:var(--gray-100);overflow:hidden;margin-top:6px;}
+.pw-strength-fill{height:100%;border-radius:20px;transition:width 0.3s,background 0.3s;width:0%;}
+.pw-hint{font-size:11.5px;margin-top:4px;}
+.activity-item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--gray-100);}
+.activity-item:last-child{border-bottom:none;}
+.activity-dot{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.activity-dot svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.activity-dot.purple{background:#ede9fe;color:#6d28d9;}
+.activity-dot.amber{background:var(--amber-light);color:var(--amber);}
+.activity-dot.red{background:var(--red-light);color:var(--red);}
+.activity-text{flex:1;font-size:13px;color:var(--gray-700);line-height:1.4;}
+.activity-time{font-size:11.5px;color:var(--gray-400);white-space:nowrap;}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--gray-800);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;opacity:0;transform:translateY(8px);transition:opacity 0.25s,transform 0.25s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{background:var(--green-700);}
+.toast.error{background:#b91c1c;}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="topbar-brand"><div class="brand-logo">TCM</div><div><div class="brand-name">TCM LMS</div><div class="brand-sub">Administrator Panel</div></div></div>
+  <div class="topbar-spacer"></div>
+  <div class="user-chip"><div class="user-avatar">AD</div><div><div class="uname">System Admin</div><div class="urole">Administrator</div></div></div>
+</header>
+<aside class="sidebar">
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Management</div>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>User Management</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Courses &amp; Sections</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Announcements</a>
+    <a class="nav-item" href="submission-analytics.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Submission Analytics</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">System</div>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>System Health</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><polyline points="20 7 20 3 4 3 4 7"/><line x1="12" y1="3" x2="12" y2="21"/><path d="M4 21h16"/></svg>Backup &amp; Restore</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Audit Logs</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+    <a class="nav-item active" href="admin-profile.html"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+  </div>
+  <div class="sidebar-bottom"><a class="nav-item" href="tcm-lms-login.html" onclick="event.preventDefault();(async()=>{const t=localStorage.getItem('tcm_token')||'';await fetch('api/auth/logout.php',{method:'POST',headers:{'Authorization':'Bearer '+t}}).catch(()=>{});localStorage.clear();window.location.href='tcm-lms-login.html';})()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</a></div>
+</aside>
+
+<main class="main">
+  <div class="page-body">
+    <div class="profile-hero">
+      <div class="profile-avatar-lg" onclick="showToast('Upload photo coming soon')">AD<div class="avatar-edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div></div>
+      <div class="hero-info">
+        <div class="hero-name">System Administrator</div>
+        <div class="hero-id">Admin ID: ADMIN-001 · admin@tcm.edu.ph</div>
+        <div class="hero-meta">
+          <span class="hero-meta-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>System Administrator</span>
+          <span class="hero-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Since: January 2024</span>
+          <span class="badge purple" style="border:1px solid #c4b5fd;">Super Admin</span>
+        </div>
+      </div>
+    </div>
+    <div class="stat-chips">
+      <div class="stat-chip"><div class="stat-chip-val">1,284</div><div class="stat-chip-label">Total Users</div></div>
+      <div class="stat-chip"><div class="stat-chip-val" style="color:var(--green-600);">97.3%</div><div class="stat-chip-label">Uptime</div></div>
+      <div class="stat-chip"><div class="stat-chip-val">Jun 27</div><div class="stat-chip-label">Last Backup</div></div>
+      <div class="stat-chip"><div class="stat-chip-val" style="color:#6d28d9;">Super</div><div class="stat-chip-label">Access Level</div></div>
+    </div>
+    <div class="tabs" id="profile-tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-info')">Account Info</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-security')">Security</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-notif')">Notifications</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-activity')">Activity Log</button>
+    </div>
+    <div id="tab-info" class="tab-panel active">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Account Information</div></div><button class="btn btn-primary btn-sm" onclick="saveProfileChanges()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save</button></div>
+        <div class="form-row" style="margin-bottom:1rem;">
+          <div class="form-group" style="margin-bottom:0;"><label>Display Name</label><input type="text" value="System Administrator"/></div>
+          <div class="form-group" style="margin-bottom:0;"><label>Admin Email</label><input type="email" value="admin@tcm.edu.ph" readonly/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Mobile Number</label><input type="tel" value="09201234567"/></div>
+          <div class="form-group"><label>Backup Email</label><input type="email" placeholder="Recovery email address"/></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Permissions &amp; Access</div></div>
+        <div class="info-row"><span class="info-label">Role</span><span class="info-value"><span class="badge purple">Super Administrator</span></span></div>
+        <div class="info-row"><span class="info-label">Access Level</span><span class="info-value">Full system access</span></div>
+        <div class="info-row"><span class="info-label">User Management</span><span class="info-value"><span class="badge green">Enabled</span></span></div>
+        <div class="info-row"><span class="info-label">Backup &amp; Restore</span><span class="info-value"><span class="badge green">Enabled</span></span></div>
+        <div class="info-row"><span class="info-label">System Settings</span><span class="info-value"><span class="badge green">Enabled</span></span></div>
+        <div class="info-row"><span class="info-label">Audit Log Access</span><span class="info-value"><span class="badge green">Full</span></span></div>
+      </div>
+    </div>
+    <div id="tab-security" class="tab-panel">
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-header"><div><div class="card-title">Change Password</div></div></div>
+        <div class="form-group"><label>Current Password</label><input type="password" placeholder="Current password"/></div>
+        <div class="form-group"><label>New Password</label><input type="password" id="new-pw" placeholder="Min 8 characters" oninput="checkPw(this.value)"/><div class="pw-strength"><div class="pw-strength-fill" id="pw-fill"></div></div><div class="pw-hint" id="pw-hint" style="color:var(--gray-400);">Enter a password</div></div>
+        <div class="form-group"><label>Confirm Password</label><input type="password" id="conf-pw" placeholder="Re-enter"/></div>
+        <button class="btn btn-primary" onclick="changePw()"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Update Password</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Active Sessions</div></div>
+        <div class="info-row"><div style="flex:1;"><div style="font-weight:500;font-size:13.5px;display:flex;align-items:center;gap:8px;">Chrome · Windows 11 <span class="badge green" style="font-size:10px;">Current</span></div><div style="font-size:12px;color:var(--gray-400);margin-top:2px;">192.168.1.1 · Active now</div></div></div>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray-100);"><button class="btn btn-danger btn-sm" onclick="revokeAllSessions()">Revoke All Other Sessions</button></div>
+      </div>
+    </div>
+    <div id="tab-notif" class="tab-panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Notification Preferences</div><button class="btn btn-primary btn-sm" onclick="saveProfileChanges()">Save</button></div>
+        <div class="toggle-row"><div><div class="tname">New User Registration</div><div class="tdesc">When a new user registers and needs approval</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="tname">Backup Completed</div><div class="tdesc">Email confirmation when a backup finishes</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="tname">Failed Login Alerts</div><div class="tdesc">Notify when multiple failed login attempts occur</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="tname">Storage Warning</div><div class="tdesc">When storage exceeds 80% capacity</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="tname">System Errors</div><div class="tdesc">Critical system errors and service outages</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+      </div>
+    </div>
+    <div id="tab-activity" class="tab-panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Admin Activity Log</div></div>
+        <div class="activity-item"><div class="activity-dot purple"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div><div class="activity-text">Created user account for <strong>Miraluna Caturan</strong> (Dept. Head, Nursing)</div><div class="activity-time">Jun 27, 11:00 AM</div></div>
+        <div class="activity-item"><div class="activity-dot amber"><svg viewBox="0 0 24 24"><polyline points="20 7 20 3 4 3 4 7"/><line x1="12" y1="3" x2="12" y2="21"/><path d="M4 21h16"/></svg></div><div class="activity-text">Initiated manual backup — <strong>143 MB</strong> saved successfully</div><div class="activity-time">Jun 27, 10:00 AM</div></div>
+        <div class="activity-item"><div class="activity-dot red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="activity-text">Reviewed failed login alert from IP <strong>203.177.81.22</strong></div><div class="activity-time">Jun 27, 3:42 AM</div></div>
+        <div class="activity-item"><div class="activity-dot purple"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="activity-text">Updated system settings — enabled <strong>LAN-only mode</strong> for maintenance window</div><div class="activity-time">Jun 26, 11:30 PM</div></div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function switchTab(btn,id){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('#profile-tabs .tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');}
+function checkPw(v){const f=document.getElementById('pw-fill'),h=document.getElementById('pw-hint');if(!v){f.style.width='0%';h.textContent='Enter a password';h.style.color='var(--gray-400)';return;}let s=0;if(v.length>=8)s++;if(v.length>=12)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;const l=[{w:'20%',c:'var(--red)',t:'Very Weak'},{w:'40%',c:'var(--red)',t:'Weak'},{w:'60%',c:'var(--amber)',t:'Fair'},{w:'80%',c:'var(--amber)',t:'Good'},{w:'100%',c:'#16a34a',t:'Strong'}][Math.min(s,4)];f.style.width=l.w;f.style.background=l.c;h.textContent='Strength: '+l.t;h.style.color=l.c;}
+function changePw(){const n=document.getElementById('new-pw').value,c=document.getElementById('conf-pw').value;if(!n||!c){showToast('Fill in all fields.','error');return;}if(n!==c){showToast('Passwords do not match.','error');return;}showToast('Password updated!','success');document.getElementById('new-pw').value='';document.getElementById('conf-pw').value='';document.getElementById('pw-fill').style.width='0%';}
+let tt;function showToast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='toast'+(t?' '+t:'');el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),3200);}
+
+// ── Auth guard: redirect to login if no session token ──────────────────────
+(function guardAuth() {
+  const token = localStorage.getItem('tcm_token');
+  const role  = localStorage.getItem('tcm_role');
+  if (!token || role !== 'admin') {
+    window.location.href = 'tcm-lms-login.html';
+    return;
+  }
+  // Hydrate displayed user name from localStorage (no network round-trip)
+  const user = localStorage.getItem('tcm_user');
+  if (user) {
+    try {
+      const u   = JSON.parse(user);
+      const el  = document.querySelector('.uname');
+      if (el) el.textContent = u.full_name || u.first_name || el.textContent;
+    } catch(_) {}
+  }
+})();
+
+// ── Notifications: fetch unread count on load, update bell badge ────────────
+async function loadNotifications() {
+  const token = localStorage.getItem('tcm_token') || '';
+  if (!token) return;
+  try {
+    const res  = await fetch('api/notifications/index.php?unread_only=1&limit=10', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success) return;
+
+    // Update bell badge count
+    const count   = json.data.unread_count || 0;
+    const badges  = document.querySelectorAll('.notif-badge, .bell-badge, [data-notif-count]');
+    badges.forEach(b => {
+      b.textContent = count > 9 ? '9+' : count;
+      b.style.display = count > 0 ? '' : 'none';
+    });
+
+    // If there is a notifications dropdown, populate it
+    const list = document.getElementById('notif-list');
+    if (list && json.data.notifications.length) {
+      list.innerHTML = json.data.notifications.slice(0, 5).map(n => `
+        <div class="notif-item${n.is_read ? '' : ' unread'}"
+             onclick="markNotifRead(${n.notification_id}, this)">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-body">${n.body || ''}</div>
+          <div class="notif-time">${new Date(n.created_at).toLocaleString()}</div>
+        </div>`).join('');
+    }
+  } catch(_) { /* non-fatal */ }
+}
+
+async function markNotifRead(id, el) {
+  const token = localStorage.getItem('tcm_token') || '';
+  el.classList.remove('unread');
+  try {
+    await fetch('api/notifications/index.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'mark_read', notification_id: id })
+    });
+    await loadNotifications(); // refresh badge count
+  } catch(_) {}
+}
+
+// Run on load
+loadNotifications();
+</script>
+</body>
+</html>

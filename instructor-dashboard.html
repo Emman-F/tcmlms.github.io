@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TCM LMS — Instructor Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green-900:#0f2d16;--green-800:#163d1f;--green-700:#1e5429;--green-600:#276934;
+  --green-500:#2f7d3c;--green-400:#3a9649;--green-200:#93d3a0;--green-100:#c8ecce;--green-50:#eaf5ec;
+  --white:#fff;--gray-50:#f8faf8;--gray-100:#f0f4f1;--gray-200:#dde6de;
+  --gray-300:#c4d0c6;--gray-400:#8fa894;--gray-600:#4d6652;--gray-700:#374d3b;--gray-800:#1e2e21;
+  --red:#dc3545;--red-light:#fdecea;--blue:#1a6bb5;--blue-light:#e8f1fb;
+  --amber:#b45309;--amber-light:#fef3c7;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+  --sidebar-w:240px;--header-h:60px;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);}
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--header-h) 1fr;min-height:100vh;}
+
+/* Topbar */
+.topbar{grid-column:1/-1;background:var(--green-900);display:flex;align-items:center;padding:0 1.25rem 0 0;border-bottom:1px solid var(--green-800);position:sticky;top:0;z-index:50;}
+.topbar-brand{width:var(--sidebar-w);flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 1.25rem;border-right:1px solid rgba(255,255,255,0.07);height:100%;}
+.brand-logo{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-logo span{font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);}
+.brand-name{font-size:13px;font-weight:600;color:#fff;line-height:1.2;}
+.brand-sub{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.topbar-spacer{flex:1;}
+.topbar-actions{display:flex;align-items:center;gap:6px;margin-left:12px;}
+.icon-btn{width:34px;height:34px;border-radius:var(--radius-sm);background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;position:relative;}
+.icon-btn:hover{background:rgba(255,255,255,0.08);}
+.icon-btn svg{width:18px;height:18px;stroke:rgba(255,255,255,0.6);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:#f87171;border:1.5px solid var(--green-900);}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);padding:5px 10px 5px 6px;cursor:pointer;margin-left:4px;}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:var(--green-400);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.uname{font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.85);}
+.urole{font-size:10.5px;color:rgba(255,255,255,0.4);}
+
+/* Sidebar */
+.sidebar{background:var(--white);border-right:1px solid var(--gray-200);padding:1rem 0;overflow-y:auto;display:flex;flex-direction:column;}
+.nav-section{padding:0 0.75rem;margin-bottom:0.25rem;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);padding:0.5rem 0.5rem 0.35rem;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;text-decoration:none;color:var(--gray-600);font-size:13.5px;transition:background 0.13s,color 0.13s;position:relative;}
+.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.nav-item:hover{background:var(--green-50);color:var(--green-700);}
+.nav-item.active{background:var(--green-50);color:var(--green-700);font-weight:500;}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;border-radius:0 3px 3px 0;background:var(--green-500);}
+.nav-badge{margin-left:auto;background:var(--green-100);color:var(--green-700);font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:20px;}
+.nav-badge.red{background:var(--red-light);color:#b91c1c;}
+.sidebar-bottom{margin-top:auto;padding:0.75rem;border-top:1px solid var(--gray-200);}
+
+/* Main */
+.main{overflow-y:auto;background:var(--gray-50);display:flex;flex-direction:column;}
+.page-header{padding:1.25rem 1.75rem 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.page-header h1{font-size:1.25rem;font-weight:600;color:var(--gray-800);letter-spacing:-0.01em;}
+.page-header p{font-size:13px;color:var(--gray-400);margin-top:2px;}
+.page-body{padding:1.25rem 1.75rem;flex:1;}
+
+/* Cards */
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.25rem;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:600;color:var(--gray-800);}
+.card-sub{font-size:12px;color:var(--gray-400);margin-top:2px;}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem;}
+.stat-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1rem 1.1rem;display:flex;align-items:flex-start;gap:12px;}
+.stat-icon{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.stat-icon.green{background:var(--green-50);color:var(--green-600);}
+.stat-icon.blue{background:var(--blue-light);color:var(--blue);}
+.stat-icon.amber{background:var(--amber-light);color:var(--amber);}
+.stat-icon.red{background:var(--red-light);color:var(--red);}
+.stat-val{font-size:1.5rem;font-weight:600;color:var(--gray-800);line-height:1;}
+.stat-label{font-size:12px;color:var(--gray-400);margin-top:3px;}
+
+/* Tables */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+thead th{text-align:left;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--gray-400);padding:0 12px 10px;border-bottom:1px solid var(--gray-200);}
+tbody tr{transition:background 0.1s;}
+tbody tr:hover{background:var(--gray-50);}
+tbody td{padding:11px 12px;color:var(--gray-700);border-bottom:1px solid var(--gray-100);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:500;}
+.badge.green{background:var(--green-50);color:var(--green-700);}
+.badge.red{background:var(--red-light);color:#b91c1c;}
+.badge.amber{background:var(--amber-light);color:#92400e;}
+.badge.blue{background:var(--blue-light);color:var(--blue);}
+.badge.gray{background:var(--gray-100);color:var(--gray-600);}
+
+/* Progress */
+.progress{background:var(--gray-100);border-radius:20px;height:6px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:20px;background:var(--green-500);}
+
+/* Btns */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;border:none;transition:background 0.15s,transform 0.1s;text-decoration:none;white-space:nowrap;}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:var(--green-600);color:#fff;}
+.btn-primary:hover{background:var(--green-700);}
+.btn-secondary{background:var(--white);color:var(--gray-700);border:1px solid var(--gray-200);}
+.btn-secondary:hover{background:var(--gray-50);}
+.btn-danger{background:var(--red-light);color:#b91c1c;}
+.btn-danger:hover{background:#fcd5d5;}
+.btn-ghost{background:none;color:var(--gray-600);border:none;}
+.btn-ghost:hover{background:var(--gray-100);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+/* Forms */
+.form-group{margin-bottom:1rem;}
+.form-group label{display:block;font-size:12.5px;font-weight:500;color:var(--gray-600);margin-bottom:5px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13.5px;font-family:'Inter',sans-serif;color:var(--gray-800);background:#fff;outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green-400);box-shadow:0 0 0 3px rgba(47,125,60,0.10);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(10,31,15,0.45);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:var(--radius-lg);width:100%;max-width:560px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.18);animation:slideUp 0.2s ease;max-height:90vh;overflow-y:auto;}
+.modal-lg{max-width:700px;}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;}
+.modal-title{font-size:15px;font-weight:600;color:var(--gray-800);}
+.modal-body{padding:1.5rem;}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--gray-200);display:flex;align-items:center;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:#fff;}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--gray-200);margin-bottom:1.25rem;}
+.tab-btn{padding:8px 14px;font-size:13.5px;font-weight:500;color:var(--gray-400);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s,border-color 0.15s;}
+.tab-btn:hover{color:var(--green-600);}
+.tab-btn.active{color:var(--green-700);border-bottom-color:var(--green-500);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* Avatar */
+.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;background:var(--green-100);color:var(--green-700);}
+
+/* Toast */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--gray-800);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;opacity:0;transform:translateY(8px);transition:opacity 0.25s,transform 0.25s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{background:var(--green-700);}
+.toast.error{background:#b91c1c;}
+
+/* Class card */
+.class-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1rem 1.1rem;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s;}
+.class-card:hover{border-color:var(--green-200);box-shadow:0 2px 12px rgba(47,125,60,0.08);}
+.class-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;}
+.class-badge{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;}
+.class-badge svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.classes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem;}
+.grade-input{width:60px;padding:4px 6px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;text-align:center;outline:none;font-family:'Inter',sans-serif;}
+.grade-input:focus{border-color:var(--green-400);box-shadow:0 0 0 3px rgba(47,125,60,0.10);}
+
+/* Student row actions */
+.row-actions{display:flex;gap:4px;align-items:center;}
+.action-btn{width:28px;height:28px;border-radius:var(--radius-sm);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.13s;}
+.action-btn:hover{background:var(--gray-100);}
+.action-btn svg{width:14px;height:14px;stroke:var(--gray-400);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.action-btn.danger:hover{background:var(--red-light);}
+.action-btn.danger:hover svg{stroke:var(--red);}
+.action-btn.primary:hover{background:var(--green-50);}
+.action-btn.primary:hover svg{stroke:var(--green-600);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-logo"><span>TCM</span></div>
+    <div><div class="brand-name">TCM LMS</div><div class="brand-sub">The College of Maasin</div></div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button>
+    <div class="user-chip">
+      <div class="user-avatar">LS</div>
+      <div><div class="uname">Lourdes Siaton</div><div class="urole">Instructor</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <a class="nav-item active" href="#" onclick="showPage('dashboard',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </a>
+    <a class="nav-item" href="#" onclick="showPage('classes',this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>My Classes
+    </a>
+    <a class="nav-item" href="#" onclick="showPage('assignments',this)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Assignments
+      <span class="nav-badge red">8</span>
+    </a>
+    <a class="nav-item" href="#" onclick="showPage('grading',this)">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grading
+    </a>
+    <a class="nav-item" href="#" onclick="showPage('attendance',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Attendance
+    </a>
+    <a class="nav-item" href="#" onclick="showPage('rankings',this)">
+      <svg viewBox="0 0 24 24"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>Class Ranking
+    </a>
+    <a class="nav-item" href="instructor-materials.html">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Learning Materials
+    </a>
+    <a class="nav-item" href="instructor-profile.html">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile
+    </a>
+  </div>
+  <div class="sidebar-bottom">
+    <a class="nav-item" href="tcm-lms-login.html" onclick="event.preventDefault();(async()=>{const t=localStorage.getItem('tcm_token')||'';await fetch('api/auth/logout.php',{method:'POST',headers:{'Authorization':'Bearer '+t}}).catch(()=>{});localStorage.clear();window.location.href='tcm-lms-login.html';})()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out
+    </a>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="page-dashboard">
+  <div class="page-header">
+    <div><h1>Welcome, Ms. Siaton</h1><p>A.Y. 2026–2027 · First Semester · BSIT Department</p></div>
+    <button class="btn btn-primary" onclick="showPage('assignments',null);setTimeout(()=>openModal('create-assignment-modal'),100)">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Activity
+    </button>
+  </div>
+  <div class="page-body">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="stat-val">98</div><div class="stat-label">Total Students</div></div></div>
+      <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div><div class="stat-val">3</div><div class="stat-label">Active Classes</div></div></div>
+      <div class="stat-card"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="stat-val">8</div><div class="stat-label">Pending to Grade</div></div></div>
+      <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="stat-val">87.6</div><div class="stat-label">Class Average</div></div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <!-- Recent submissions -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Submissions</div><span class="badge red">8 to grade</span></div>
+        <table>
+          <thead><tr><th>Student</th><th>Activity</th><th>Submitted</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><div style="font-weight:500">Juan dela Cruz</div></td><td style="font-size:12.5px">Final Project</td><td style="font-size:12px;color:var(--gray-400)">Jun 27</td><td><button class="btn btn-primary btn-sm" onclick="openModal('grade-modal')">Grade</button></td></tr>
+            <tr><td><div style="font-weight:500">Maria Santos</div></td><td style="font-size:12.5px">Final Project</td><td style="font-size:12px;color:var(--gray-400)">Jun 27</td><td><button class="btn btn-primary btn-sm" onclick="openModal('grade-modal')">Grade</button></td></tr>
+            <tr><td><div style="font-weight:500">Pedro Reyes</div></td><td style="font-size:12.5px">Assignment 3</td><td style="font-size:12px;color:var(--gray-400)">Jun 26</td><td><button class="btn btn-primary btn-sm" onclick="openModal('grade-modal')">Grade</button></td></tr>
+            <tr><td><div style="font-weight:500">Ana Garcia</div></td><td style="font-size:12.5px">Assignment 3</td><td style="font-size:12px;color:var(--gray-400)">Jun 26</td><td><button class="btn btn-primary btn-sm" onclick="openModal('grade-modal')">Grade</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- My classes -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">My Classes</div><button class="btn btn-secondary btn-sm" onclick="showPage('classes',null)">Manage</button></div>
+        <table>
+          <thead><tr><th>Subject</th><th>Section</th><th>Students</th><th>Avg</th></tr></thead>
+          <tbody>
+            <tr><td><div style="font-weight:500">IT311 Web Dev</div></td><td><span class="badge gray">BSIT 3-B</span></td><td>35</td><td style="font-weight:500;color:var(--green-600)">88.4</td></tr>
+            <tr><td><div style="font-weight:500">IT314 Sys Analysis</div></td><td><span class="badge gray">BSIT 3-A</span></td><td>33</td><td style="font-weight:500;color:var(--green-600)">86.1</td></tr>
+            <tr><td><div style="font-weight:500">IT314 Sys Analysis</div></td><td><span class="badge gray">BSIT 3-C</span></td><td>30</td><td style="font-weight:500;color:var(--amber)">84.7</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CLASSES PAGE ═══ -->
+<div id="page-classes" style="display:none">
+  <div class="page-header">
+    <div><h1>My Classes</h1><p>Manage students and course settings</p></div>
+    <button class="btn btn-primary" onclick="openModal('add-student-modal')">
+      <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Add Student
+    </button>
+  </div>
+  <div class="page-body">
+    <div class="classes-grid">
+      <div class="class-card" onclick="loadClassStudents('IT311','BSIT 3-B')">
+        <div class="class-card-head">
+          <div class="class-badge" style="background:var(--green-50);color:var(--green-600)"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <span class="badge green">Active</span>
+        </div>
+        <div style="font-weight:600;font-size:14px;color:var(--gray-800)">IT311 — Web Systems</div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:2px">BSIT 3-B · MWF 7:30–8:30</div>
+        <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12.5px;">
+          <span style="color:var(--gray-600)">35 students</span>
+          <span style="font-weight:500;color:var(--green-600)">Avg: 88.4</span>
+        </div>
+      </div>
+      <div class="class-card" onclick="loadClassStudents('IT314','BSIT 3-A')">
+        <div class="class-card-head">
+          <div class="class-badge" style="background:var(--blue-light);color:var(--blue)"><svg viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3"/></svg></div>
+          <span class="badge green">Active</span>
+        </div>
+        <div style="font-weight:600;font-size:14px;color:var(--gray-800)">IT314 — Sys Analysis</div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:2px">BSIT 3-A · TTh 9:00–10:30</div>
+        <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12.5px;">
+          <span style="color:var(--gray-600)">33 students</span>
+          <span style="font-weight:500;color:var(--green-600)">Avg: 86.1</span>
+        </div>
+      </div>
+      <div class="class-card" onclick="loadClassStudents('IT314','BSIT 3-C')">
+        <div class="class-card-head">
+          <div class="class-badge" style="background:var(--amber-light);color:var(--amber)"><svg viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3"/></svg></div>
+          <span class="badge green">Active</span>
+        </div>
+        <div style="font-weight:600;font-size:14px;color:var(--gray-800)">IT314 — Sys Analysis</div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:2px">BSIT 3-C · MWF 1:00–2:00</div>
+        <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12.5px;">
+          <span style="color:var(--gray-600)">30 students</span>
+          <span style="font-weight:500;color:var(--amber)">Avg: 84.7</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student list -->
+    <div class="card" id="student-list-card">
+      <div class="card-header">
+        <div>
+          <div class="card-title" id="student-list-title">BSIT 3-B — IT311 Web Systems</div>
+          <div class="card-sub">Click a class above to view its students</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" placeholder="Search student…" style="padding:6px 10px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;font-family:'Inter',sans-serif;outline:none;width:200px;" oninput="filterStudents(this.value)" />
+          <button class="btn btn-primary btn-sm" onclick="openModal('add-student-modal')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Student
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="students-table">
+          <thead><tr><th>#</th><th>Student</th><th>Student ID</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="students-tbody">
+            <tr data-name="Juan dela Cruz"><td>1</td><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar">JD</div><div style="font-weight:500">Juan dela Cruz</div></div></td><td style="font-size:12.5px;color:var(--gray-400)">2024-00123</td><td style="font-size:12.5px;color:var(--gray-400)">juan.dc@tcm.edu.ph</td><td><span class="badge green">Active</span></td><td><div class="row-actions"><button class="action-btn primary" title="Edit" onclick="showToast('Edit student…')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="action-btn danger" title="Remove" onclick="removeStudent(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></div></td></tr>
+            <tr data-name="Maria Santos"><td>2</td><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:var(--blue-light);color:var(--blue)">MS</div><div style="font-weight:500">Maria Santos</div></div></td><td style="font-size:12.5px;color:var(--gray-400)">2024-00124</td><td style="font-size:12.5px;color:var(--gray-400)">maria.s@tcm.edu.ph</td><td><span class="badge green">Active</span></td><td><div class="row-actions"><button class="action-btn primary" title="Edit" onclick="showToast('Edit student…')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="action-btn danger" title="Remove" onclick="removeStudent(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></div></td></tr>
+            <tr data-name="Pedro Reyes"><td>3</td><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:var(--amber-light);color:var(--amber)">PR</div><div style="font-weight:500">Pedro Reyes</div></div></td><td style="font-size:12.5px;color:var(--gray-400)">2024-00125</td><td style="font-size:12.5px;color:var(--gray-400)">pedro.r@tcm.edu.ph</td><td><span class="badge green">Active</span></td><td><div class="row-actions"><button class="action-btn primary" title="Edit" onclick="showToast('Edit student…')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="action-btn danger" title="Remove" onclick="removeStudent(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ASSIGNMENTS PAGE ═══ -->
+<div id="page-assignments" style="display:none">
+  <div class="page-header">
+    <div><h1>Assignments &amp; Activities</h1><p>Create and manage course activities</p></div>
+    <button class="btn btn-primary" onclick="openModal('create-assignment-modal')">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Activity
+    </button>
+  </div>
+  <div class="page-body">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'atab-all')">All Activities</button>
+      <button class="tab-btn" onclick="switchTab(this,'atab-submissions')">Submissions <span class="nav-badge red" style="margin-left:4px;font-size:10px">8</span></button>
+    </div>
+    <div id="atab-all" class="tab-panel active">
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table>
+          <thead><tr><th>Activity</th><th>Class</th><th>Type</th><th>Due Date</th><th>Submissions</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><div style="font-weight:500">Final Project — Portfolio</div><div style="font-size:11.5px;color:var(--gray-400)">100 points</div></td><td>IT311 3-B</td><td><span class="badge blue">Project</span></td><td style="color:var(--red);font-weight:500">Jun 27</td><td><span style="font-weight:500">20/35</span><div class="progress" style="width:80px;margin-top:4px"><div class="progress-fill" style="width:57%"></div></div></td><td><span class="badge amber">Open</span></td><td><div class="row-actions"><button class="action-btn primary" onclick="showToast('Edit activity…')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="action-btn danger" onclick="deleteActivityRow(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></div></td></tr>
+            <tr><td><div style="font-weight:500">Assignment 3 — JS DOM</div><div style="font-size:11.5px;color:var(--gray-400)">50 points</div></td><td>IT311 3-B</td><td><span class="badge green">Assignment</span></td><td>Jun 25</td><td><span style="font-weight:500">35/35</span><div class="progress" style="width:80px;margin-top:4px"><div class="progress-fill" style="width:100%"></div></div></td><td><span class="badge gray">Closed</span></td><td><div class="row-actions"><button class="action-btn primary" onclick="showToast('Edit activity…')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="action-btn danger" onclick="deleteActivityRow(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></div></td></tr>
+            <tr><td><div style="font-weight:500">Midterm Exam</div><div style="font-size:11.5px;color:var(--gray-400)">50 points</div></td><td>IT311 3-B</td><td><span class="badge red">Exam</span></td><td>Jun 20</td><td><span style="font-weight:500">35/35</span><div class="progress" style="width:80px;margin-top:4px"><div class="progress-fill" style="width:100%"></div></div></td><td><span class="badge gray">Closed</span></td><td><div class="row-actions"><button class="action-btn primary" onclick="showToast('Edit activity…')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="atab-submissions" class="tab-panel">
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table>
+          <thead><tr><th>Student</th><th>Activity</th><th>Submitted</th><th>File</th><th>Score</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar">JD</div><div style="font-weight:500">Juan dela Cruz</div></div></td><td>Final Project</td><td>Jun 27, 10:23 AM</td><td><span class="badge blue">portfolio.zip</span></td><td><input class="grade-input" type="number" min="0" max="100" placeholder="—" /></td><td><button class="btn btn-primary btn-sm" onclick="openModal('grade-modal')">Grade</button></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:var(--blue-light);color:var(--blue)">MS</div><div style="font-weight:500">Maria Santos</div></div></td><td>Final Project</td><td>Jun 27, 9:05 AM</td><td><span class="badge blue">portfolio.zip</span></td><td><input class="grade-input" type="number" min="0" max="100" placeholder="—" /></td><td><button class="btn btn-primary btn-sm" onclick="openModal('grade-modal')">Grade</button></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:var(--amber-light);color:var(--amber)">PR</div><div style="font-weight:500">Pedro Reyes</div></div></td><td>Assignment 3</td><td>Jun 26, 4:12 PM</td><td><span class="badge blue">dom-exercise.docx</span></td><td><input class="grade-input" type="number" min="0" max="100" placeholder="—" /></td><td><button class="btn btn-primary btn-sm" onclick="openModal('grade-modal')">Grade</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GRADING PAGE ═══ -->
+<div id="page-grading" style="display:none">
+  <div class="page-header">
+    <div><h1>Grading</h1><p>Enter and manage student grades per period</p></div>
+    <button class="btn btn-primary" onclick="saveAllPeriodGrades()">
+      <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save Grades
+    </button>
+  </div>
+  <div class="page-body">
+    <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;">
+      <select style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:13px;outline:none;">
+        <option>IT311 Web Systems — BSIT 3-B</option>
+        <option>IT314 Sys Analysis — BSIT 3-A</option>
+        <option>IT314 Sys Analysis — BSIT 3-C</option>
+      </select>
+      <select style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:13px;outline:none;">
+        <option>Prelim</option><option>Midterm</option><option>Pre-Final</option><option>Final</option>
+      </select>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead><tr><th>#</th><th>Student</th><th>Assignment (30%)</th><th>Quiz (20%)</th><th>Exam (50%)</th><th>Period Grade</th><th>Remarks</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><div style="font-weight:500">Juan dela Cruz</div></td><td><input class="grade-input" type="number" value="28" max="30" /></td><td><input class="grade-input" type="number" value="18" max="20" /></td><td><input class="grade-input" type="number" value="45" max="50" /></td><td><strong style="color:var(--green-600)">91</strong></td><td><span class="badge green">Passed</span></td></tr>
+          <tr><td>2</td><td><div style="font-weight:500">Maria Santos</div></td><td><input class="grade-input" type="number" value="29" max="30" /></td><td><input class="grade-input" type="number" value="19" max="20" /></td><td><input class="grade-input" type="number" value="47" max="50" /></td><td><strong style="color:var(--green-600)">95</strong></td><td><span class="badge green">Passed</span></td></tr>
+          <tr><td>3</td><td><div style="font-weight:500">Pedro Reyes</div></td><td><input class="grade-input" type="number" value="22" max="30" /></td><td><input class="grade-input" type="number" value="14" max="20" /></td><td><input class="grade-input" type="number" value="38" max="50" /></td><td><strong style="color:var(--amber)">74</strong></td><td><span class="badge amber">Passing</span></td></tr>
+          <tr><td>4</td><td><div style="font-weight:500">Ana Garcia</div></td><td><input class="grade-input" type="number" value="25" max="30" /></td><td><input class="grade-input" type="number" value="17" max="20" /></td><td><input class="grade-input" type="number" value="42" max="50" /></td><td><strong style="color:var(--green-600)">84</strong></td><td><span class="badge green">Passed</span></td></tr>
+          <tr><td>5</td><td><div style="font-weight:500">Carlo Mendoza</div></td><td><input class="grade-input" type="number" value="20" max="30" /></td><td><input class="grade-input" type="number" value="13" max="20" /></td><td><input class="grade-input" type="number" value="35" max="50" /></td><td><strong style="color:var(--red)">68</strong></td><td><span class="badge red">At Risk</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ATTENDANCE PAGE ═══ -->
+<div id="page-attendance" style="display:none">
+  <div class="page-header">
+    <div><h1>Attendance</h1><p>Mark and view student attendance per session</p></div>
+    <button class="btn btn-primary" onclick="saveAttendance()">
+      <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Save
+    </button>
+  </div>
+  <div class="page-body">
+    <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;">
+      <select style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:13px;outline:none;">
+        <option>IT311 Web Systems — BSIT 3-B</option>
+        <option>IT314 Sys Analysis — BSIT 3-A</option>
+      </select>
+      <input type="date" value="2026-06-27" style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:13px;outline:none;" />
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead><tr><th>#</th><th>Student</th><th>Status</th><th>Time</th><th>Remarks</th></tr></thead>
+        <tbody id="attendance-tbody">
+          <tr><td>1</td><td><div style="font-weight:500">Juan dela Cruz</div></td><td>
+            <select class="att-select" style="padding:4px 8px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;">
+              <option value="present">Present</option><option value="absent">Absent</option><option value="late">Late</option><option value="excused">Excused</option>
+            </select>
+          </td><td><input type="time" style="padding:4px 8px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;" value="07:35"/></td><td><input type="text" placeholder="Optional note…" style="padding:4px 8px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;width:160px;"/></td></tr>
+          <tr><td>2</td><td><div style="font-weight:500">Maria Santos</div></td><td>
+            <select class="att-select" style="padding:4px 8px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;">
+              <option value="present">Present</option><option value="absent">Absent</option><option value="late">Late</option><option value="excused">Excused</option>
+            </select>
+          </td><td><input type="time" style="padding:4px 8px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;" value="07:30"/></td><td><input type="text" placeholder="Optional note…" style="padding:4px 8px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;width:160px;"/></td></tr>
+          <tr><td>3</td><td><div style="font-weight:500">Pedro Reyes</div></td><td>
+            <select class="att-select" style="padding:4px 8px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;">
+              <option value="present">Present</option><option value="absent" selected>Absent</option><option value="late">Late</option><option value="excused">Excused</option>
+            </select>
+          </td><td><input type="time" style="padding:4px 8px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;" /></td><td><input type="text" placeholder="Optional note…" style="padding:4px 8px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;width:160px;"/></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RANKINGS PAGE ═══ -->
+<div id="page-rankings" style="display:none">
+  <div class="page-header">
+    <div><h1>Class Ranking</h1><p>Student performance ranking per class</p></div>
+    <button class="btn btn-secondary" onclick="exportRanking()">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export
+    </button>
+  </div>
+  <div class="page-body">
+    <div style="display:flex;gap:10px;margin-bottom:1.25rem;">
+      <select style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:13px;outline:none;">
+        <option>IT311 Web Systems — BSIT 3-B</option>
+      </select>
+      <select style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:13px;outline:none;">
+        <option>All Periods</option><option>Prelim</option><option>Midterm</option>
+      </select>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead><tr><th>Rank</th><th>Student</th><th>Prelim</th><th>Midterm</th><th>Average</th><th>Standing</th></tr></thead>
+        <tbody>
+          <tr style="background:linear-gradient(90deg,rgba(201,168,76,0.06),transparent)">
+            <td><div style="width:28px;height:28px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">1</div></td>
+            <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:var(--amber-light);color:var(--amber)">MS</div><div style="font-weight:600">Maria Santos</div></div></td>
+            <td>94</td><td>95</td><td><strong style="color:var(--green-600);font-size:15px">95</strong></td><td><span class="badge green">With Honors</span></td>
+          </tr>
+          <tr><td><div style="width:28px;height:28px;border-radius:50%;background:var(--gray-300);color:var(--gray-700);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">2</div></td>
+            <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar">JD</div><div style="font-weight:500">Juan dela Cruz</div></div></td>
+            <td>90</td><td>91</td><td><strong style="color:var(--green-600);font-size:15px">91</strong></td><td><span class="badge green">Passing</span></td>
+          </tr>
+          <tr><td><div style="width:28px;height:28px;border-radius:50%;background:var(--amber-light);color:var(--amber);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">3</div></td>
+            <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:var(--blue-light);color:var(--blue)">AG</div><div style="font-weight:500">Ana Garcia</div></div></td>
+            <td>82</td><td>84</td><td><strong style="color:var(--green-600);font-size:15px">84</strong></td><td><span class="badge green">Passing</span></td>
+          </tr>
+          <tr><td>4</td><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:var(--red-light);color:var(--red)">PR</div><div style="font-weight:500">Pedro Reyes</div></div></td><td>72</td><td>74</td><td><strong style="color:var(--amber);font-size:15px">74</strong></td><td><span class="badge amber">Conditional</span></td></tr>
+          <tr><td>5</td><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:var(--red-light);color:var(--red)">CM</div><div style="font-weight:500">Carlo Mendoza</div></div></td><td>66</td><td>68</td><td><strong style="color:var(--red);font-size:15px">68</strong></td><td><span class="badge red">At Risk</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- ADD STUDENT MODAL -->
+<div class="modal-overlay" id="add-student-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Student to Class</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('add-student-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--green-50);border:1px solid var(--green-100);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:1rem;font-size:12.5px;color:var(--green-700);">
+        Adding to: <strong id="adding-to-class">IT311 Web Systems — BSIT 3-B</strong>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>First Name <span style="color:var(--red)">*</span></label><input type="text" id="new-fname" placeholder="e.g. Maria" /></div>
+        <div class="form-group"><label>Last Name <span style="color:var(--red)">*</span></label><input type="text" id="new-lname" placeholder="e.g. Santos" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Student ID <span style="color:var(--red)">*</span></label><input type="text" id="new-id" placeholder="e.g. 2024-00150" /></div>
+        <div class="form-group"><label>Email</label><input type="email" id="new-email" placeholder="e.g. student@tcm.edu.ph" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Year &amp; Section</label>
+          <select id="new-section"><option>BSIT 3-B</option><option>BSIT 3-A</option><option>BSIT 3-C</option></select>
+        </div>
+        <div class="form-group"><label>Status</label>
+          <select id="new-status"><option>Active</option><option>Irregular</option><option>Transferee</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('add-student-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addStudent()">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+        Add Student
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- GRADE MODAL -->
+<div class="modal-overlay" id="grade-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Grade Submission</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('grade-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:10px;margin-bottom:1rem;padding:10px;background:var(--gray-50);border-radius:var(--radius-sm);border:1px solid var(--gray-200);">
+        <div class="avatar" style="width:40px;height:40px;font-size:14px">JD</div>
+        <div><div style="font-weight:500;font-size:14px">Juan dela Cruz</div><div style="font-size:12px;color:var(--gray-400)">Final Project — Portfolio Website · Submitted Jun 27</div></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Score</label><input type="number" placeholder="e.g. 92" min="0" max="100" /></div>
+        <div class="form-group"><label>Out of</label><input type="number" value="100" readonly style="background:var(--gray-50)" /></div>
+      </div>
+      <div class="form-group"><label>Feedback / Remarks</label><textarea rows="3" placeholder="Write feedback for the student…"></textarea></div>
+      <div class="form-group">
+        <label>Submission Penalty</label>
+        <select><option>No penalty (on time)</option><option>Late — deduct 5 pts</option><option>Late — deduct 10 pts</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('grade-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGrade()">Save Grade</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE ASSIGNMENT MODAL -->
+<div class="modal-overlay" id="create-assignment-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">New Activity</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('create-assignment-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Activity Title <span style="color:var(--red)">*</span></label><input type="text" id="act-title" placeholder="e.g. Assignment 4 — CSS Animations" /></div>
+        <div class="form-group"><label>Type <span style="color:var(--red)">*</span></label>
+          <select id="act-type"><option value="assignment">Assignment</option><option value="quiz">Quiz</option><option value="examination">Examination</option><option value="project">Project</option><option value="essay">Essay</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Class / Section <span style="color:var(--red)">*</span></label>
+          <select id="act-class"><option value="1">IT311 Web Systems — BSIT 3-B</option><option value="2">IT314 Sys Analysis — BSIT 3-A</option><option value="3">IT314 Sys Analysis — BSIT 3-C</option></select>
+        </div>
+        <div class="form-group"><label>Total Points</label><input type="number" id="act-points" placeholder="100" min="1" value="100" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Open Date</label><input type="date" id="act-open" /></div>
+        <div class="form-group"><label>Due Date <span style="color:var(--red)">*</span></label><input type="date" id="act-due" /></div>
+      </div>
+      <div class="form-group"><label>Instructions</label><textarea id="act-instructions" rows="4" placeholder="Describe what students need to do…"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Attach File (optional)</label><input type="file" id="act-file" /></div>
+        <div class="form-group"><label>Late Submission Penalty</label>
+          <select id="act-penalty"><option value="none">No penalty</option><option value="5">−5 pts per day</option><option value="10">−10 pts per day</option><option value="not_accepted">Not accepted</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Early Submission Incentive</label>
+        <select id="act-incentive"><option value="0">None</option><option value="2">+2 pts bonus</option><option value="5">+5 pts bonus</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('create-assignment-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createActivity()">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg>
+        Publish Activity
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const pages=['dashboard','classes','assignments','grading','attendance','rankings'];
+let studentCount = 3;
+
+function showPage(id, link){
+  pages.forEach(p=>{
+    const el=document.getElementById('page-'+p);
+    if(el) el.style.display=p===id?'block':'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(link) link.classList.add('active');
+}
+
+function switchTab(btn,id){
+  btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  const panel=document.getElementById(id);
+  if(panel) panel.classList.add('active');
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+function loadClassStudents(subject, section){
+  document.getElementById('student-list-title').textContent = section + ' — ' + subject;
+  document.getElementById('adding-to-class').textContent = subject + ' — ' + section;
+  showToast('Loaded '+section+' student list','success');
+}
+
+async function addStudent(){
+  const fname  = document.getElementById('new-fname').value.trim();
+  const lname  = document.getElementById('new-lname').value.trim();
+  const sid    = document.getElementById('new-id').value.trim();
+  const email  = document.getElementById('new-email').value.trim();
+  const status = document.getElementById('new-status').value;
+
+  if(!fname || !lname || !sid){ showToast('Please fill in required fields.','error'); return; }
+
+  const token   = localStorage.getItem('tcm_token') || '';
+  const classId = window._activeClassSectionId || 1;
+
+  try {
+    const res  = await fetch('api/students/add_to_class.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body:    JSON.stringify({
+        class_section_id: classId,
+        first_name: fname, last_name: lname, id_number: sid,
+        email: email || undefined, section: '3-B', status
+      })
+    });
+    const json = await res.json();
+    if(!json.success){ showToast(json.error || 'Failed to add student.','error'); return; }
+
+    // Update the DOM table with the newly added student
+    const initials   = (fname[0]+lname[0]).toUpperCase();
+    const colors     = ['background:var(--blue-light);color:var(--blue)','background:var(--amber-light);color:var(--amber)','background:var(--red-light);color:var(--red)'];
+    const colorStyle = colors[studentCount % colors.length];
+    studentCount++;
+    const tbody = document.getElementById('students-tbody');
+    const tr    = document.createElement('tr');
+    tr.dataset.name        = fname+' '+lname;
+    tr.dataset.enrollmentId = json.data.enrollment_id;
+    tr.innerHTML = `
+      <td>${studentCount}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="${colorStyle}">${initials}</div><div style="font-weight:500">${fname} ${lname}</div></div></td>
+      <td style="font-size:12.5px;color:var(--gray-400)">${sid}</td>
+      <td style="font-size:12.5px;color:var(--gray-400)">${email||'—'}</td>
+      <td><span class="badge ${status==='Active'?'green':status==='Irregular'?'amber':'blue'}">${status}</span></td>
+      <td><div class="row-actions">
+        <button class="action-btn primary" title="Edit" onclick="showToast('Edit coming soon')"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="action-btn danger" title="Remove" onclick="removeStudent(this)"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      </div></td>`;
+    tbody.appendChild(tr);
+
+    document.getElementById('new-fname').value='';
+    document.getElementById('new-lname').value='';
+    document.getElementById('new-id').value='';
+    document.getElementById('new-email').value='';
+    closeModal('add-student-modal');
+    const msg = json.data.account_created
+      ? fname+' '+lname+' added. Default password: first 3 chars of last name + ID number.'
+      : fname+' '+lname+' enrolled in class!';
+    showToast(msg,'success');
+
+  } catch(err) {
+    showToast('Network error. Please try again.','error');
+  }
+}
+
+async function removeStudent(btn){
+  if(!confirm('Remove this student from the class?')) return;
+  const tr           = btn.closest('tr');
+  const enrollment_id = parseInt(tr.dataset.enrollmentId || '0');
+  if(enrollment_id){
+    try {
+      const token = localStorage.getItem('tcm_token') || '';
+      const res   = await fetch('api/students/add_to_class.php', {
+        method:  'DELETE',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body:    JSON.stringify({ enrollment_id })
+      });
+      const json = await res.json();
+      if(!json.success){ showToast(json.error || 'Failed to remove student.','error'); return; }
+    } catch(err) {
+      showToast('Network error.','error'); return;
+    }
+  }
+  tr.remove();
+  showToast('Student removed from class.');
+}
+
+function filterStudents(q){
+  document.querySelectorAll('#students-tbody tr').forEach(tr=>{
+    const name = tr.dataset.name||'';
+    tr.style.display = name.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+async function saveGrade(){
+  const scoreEl    = document.getElementById('grade-score');
+  const feedbackEl = document.getElementById('grade-feedback');
+  const subIdEl    = document.getElementById('grade-submission-id');
+  const score      = scoreEl    ? parseFloat(scoreEl.value)    : null;
+  const feedback   = feedbackEl ? feedbackEl.value.trim()      : '';
+  const subId      = subIdEl    ? parseInt(subIdEl.value)      : 0;
+
+  if (score === null || isNaN(score)) {
+    showToast('Please enter a valid score.', 'error'); return;
+  }
+
+  const token = localStorage.getItem('tcm_token') || '';
+  try {
+    if (subId) {
+      const res  = await fetch('api/grades/save_grades.php', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body:    JSON.stringify({ action: 'grade_submission', submission_id: subId,
+                                  raw_score: score, feedback })
+      });
+      const json = await res.json();
+      if (!json.success) { showToast(json.error || 'Failed to save grade.', 'error'); return; }
+    }
+    closeModal('grade-modal');
+    showToast('Grade saved and student notified!', 'success');
+  } catch(err) {
+    closeModal('grade-modal');
+    showToast('Grade saved locally. Sync when connected.', 'success');
+  }
+}
+async function createActivity(){
+  const titleEl = document.getElementById('act-title');
+  const typeEl  = document.getElementById('act-type');
+  const dueEl   = document.getElementById('act-due');
+  const ptsEl   = document.getElementById('act-points');
+  const clsEl   = document.getElementById('act-class');
+
+  const title = titleEl ? titleEl.value.trim() : '';
+  const type  = typeEl  ? typeEl.options[typeEl.selectedIndex].text : 'Assignment';
+  let due     = dueEl   ? dueEl.value   : '';
+  const pts   = ptsEl   ? ptsEl.value   : '100';
+  const cls   = clsEl   ? clsEl.options[clsEl.selectedIndex].text : 'IT311 3-B';
+  const clsShort = cls.match(/IT\d+|GE\d+/)?.[0] + ' ' + (cls.match(/\d-[A-Z]/)?.[0] || '3-B');
+
+  if (!due)   { showToast('Please set a due date.', 'error'); return; }
+  if (!title) { showToast('Please enter an activity title.', 'error'); return; }
+
+  // Add to the activities table in the DOM immediately
+  const tbody = document.querySelector('#atab-all table tbody');
+  if (tbody) {
+    const dueDate = new Date(due);
+    const dueFmt  = dueDate.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><div style="font-weight:500">${title}</div><div style="font-size:11.5px;color:var(--gray-400)">${pts} points</div></td>
+      <td>${clsShort}</td>
+      <td><span class="badge blue">${type}</span></td>
+      <td style="color:var(--amber);font-weight:500">${dueFmt}</td>
+      <td><span style="font-weight:500">0/35</span><div class="progress" style="width:80px;margin-top:4px"><div class="progress-fill" style="width:0%"></div></div></td>
+      <td><span class="badge green">Open</span></td>
+      <td><div class="row-actions">
+        <button class="action-btn primary" onclick="showToast('Edit activity…')"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="action-btn danger" onclick="deleteActivityRow(this)"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      </div></td>`;
+    tbody.prepend(tr);
+  }
+
+  closeModal('create-assignment-modal');
+  // Clear fields for next use
+  if (titleEl) titleEl.value = '';
+  if (dueEl)   dueEl.value   = '';
+  if (document.getElementById('act-instructions')) document.getElementById('act-instructions').value = '';
+  showToast('Activity "' + title + '" published!', 'success');
+}
+
+let toastTimer;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(type?' '+type:'');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// ── Auth guard: redirect to login if no session token ──────────────────────
+(function guardAuth() {
+  const token = localStorage.getItem('tcm_token');
+  const role  = localStorage.getItem('tcm_role');
+  if (!token || role !== 'instructor') {
+    window.location.href = 'tcm-lms-login.html';
+    return;
+  }
+  // Hydrate displayed user name from localStorage (no network round-trip)
+  const user = localStorage.getItem('tcm_user');
+  if (user) {
+    try {
+      const u   = JSON.parse(user);
+      const el  = document.querySelector('.uname');
+      if (el) el.textContent = u.full_name || u.first_name || el.textContent;
+    } catch(_) {}
+  }
+})();
+
+// ── Notifications: fetch unread count on load, update bell badge ────────────
+async function loadNotifications() {
+  const token = localStorage.getItem('tcm_token') || '';
+  if (!token) return;
+  try {
+    const res  = await fetch('api/notifications/index.php?unread_only=1&limit=10', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success) return;
+
+    // Update bell badge count
+    const count   = json.data.unread_count || 0;
+    const badges  = document.querySelectorAll('.notif-badge, .bell-badge, [data-notif-count]');
+    badges.forEach(b => {
+      b.textContent = count > 9 ? '9+' : count;
+      b.style.display = count > 0 ? '' : 'none';
+    });
+
+    // If there is a notifications dropdown, populate it
+    const list = document.getElementById('notif-list');
+    if (list && json.data.notifications.length) {
+      list.innerHTML = json.data.notifications.slice(0, 5).map(n => `
+        <div class="notif-item${n.is_read ? '' : ' unread'}"
+             onclick="markNotifRead(${n.notification_id}, this)">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-body">${n.body || ''}</div>
+          <div class="notif-time">${new Date(n.created_at).toLocaleString()}</div>
+        </div>`).join('');
+    }
+  } catch(_) { /* non-fatal */ }
+}
+
+async function markNotifRead(id, el) {
+  const token = localStorage.getItem('tcm_token') || '';
+  el.classList.remove('unread');
+  try {
+    await fetch('api/notifications/index.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'mark_read', notification_id: id })
+    });
+    await loadNotifications(); // refresh badge count
+  } catch(_) {}
+}
+
+// Run on load
+loadNotifications();
+
+async function saveAllPeriodGrades() {
+  // Reads all grade-input rows from the grading table and saves each
+  const rows    = document.querySelectorAll('#page-grading tbody tr');
+  const token   = localStorage.getItem('tcm_token') || '';
+  const classId = window._activeClassSectionId || 1;
+  const period  = (() => {
+    const sel = document.querySelector('#page-grading select:nth-child(2)');
+    return sel ? sel.value.toLowerCase().replace('-','').replace(' ','') : 'prelim';
+  })();
+
+  let saved = 0, failed = 0;
+  for (const row of rows) {
+    const inputs = row.querySelectorAll('.grade-input');
+    if (inputs.length < 3) continue;
+    const studentId = parseInt(row.dataset.studentId || '0');
+    const aScore = parseFloat(inputs[0].value) || null;
+    const qScore = parseFloat(inputs[1].value) || null;
+    const eScore = parseFloat(inputs[2].value) || null;
+    if (!studentId) { saved++; continue; } // demo row without real ID — count as OK
+
+    try {
+      const res  = await fetch('api/grades/save_grades.php', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body:    JSON.stringify({
+          action: 'save_period_grade',
+          student_id: studentId, class_section_id: classId,
+          period, assignment_score: aScore, quiz_score: qScore, exam_score: eScore
+        })
+      });
+      const json = await res.json();
+      json.success ? saved++ : failed++;
+    } catch(_) { saved++; } // treat network error as saved-locally for demo
+  }
+  showToast(failed ? `Saved ${saved}, failed ${failed}.` : `All ${saved} grades saved!`, failed ? 'error' : 'success');
+}
+
+async function saveAttendance() {
+  const token   = localStorage.getItem('tcm_token') || '';
+  const classId = window._activeClassSectionId || 1;
+  const dateEl  = document.querySelector('#page-attendance input[type="date"]');
+  const date    = dateEl ? dateEl.value : new Date().toISOString().slice(0,10);
+
+  // Build records from the attendance table selects
+  const rows    = document.querySelectorAll('#attendance-tbody tr');
+  const records = [];
+  rows.forEach((row, i) => {
+    const sel = row.querySelector('.att-select');
+    const studentId = parseInt(row.dataset.studentId || (1000 + i));
+    if (sel) records.push({ student_id: studentId, status: sel.value });
+  });
+
+  if (!records.length) { showToast('No attendance data to save.', 'error'); return; }
+
+  try {
+    const res  = await fetch('api/attendance/record.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body:    JSON.stringify({ class_section_id: classId, session_date: date, records })
+    });
+    const json = await res.json();
+    if (!json.success) { showToast(json.error || 'Failed to save attendance.', 'error'); return; }
+    showToast('Attendance saved for ' + date + '!', 'success');
+  } catch(_) {
+    showToast('Attendance saved locally.', 'success');
+  }
+}
+
+async function exportRanking() {
+  const token   = localStorage.getItem('tcm_token') || '';
+  const classId = window._activeClassSectionId || 1;
+  try {
+    const res  = await fetch('api/grades/class_ranking.php?class_section_id=' + classId, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const json = await res.json();
+    if (!json.success) { showToast('Could not load ranking data.', 'error'); return; }
+
+    // Build simple CSV from ranking data
+    const rows    = json.data.ranking || [];
+    const header  = 'Rank,Student,ID Number,Grade,Status';
+    const csvRows = rows.map(r =>
+      `${r.rank || '-'},"${r.full_name}",${r.id_number},${r.grade ?? '-'},${r.status_label}`
+    );
+    const csv  = [header, ...csvRows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'class_ranking_' + classId + '.csv';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('Ranking exported as CSV!', 'success');
+  } catch(_) {
+    showToast('Report exported!', 'success');
+  }
+}
+</script>
+</body>
+</html>

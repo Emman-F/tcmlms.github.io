@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TCM LMS — IT311 Web Systems</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green-900:#0f2d16;--green-800:#163d1f;--green-700:#1e5429;--green-600:#276934;
+  --green-500:#2f7d3c;--green-400:#3a9649;--green-200:#93d3a0;--green-100:#c8ecce;--green-50:#eaf5ec;
+  --white:#fff;--gray-50:#f8faf8;--gray-100:#f0f4f1;--gray-200:#dde6de;
+  --gray-300:#c4d0c6;--gray-400:#8fa894;--gray-600:#4d6652;--gray-700:#374d3b;--gray-800:#1e2e21;
+  --red:#dc3545;--red-light:#fdecea;--blue:#1a6bb5;--blue-light:#e8f1fb;
+  --amber:#b45309;--amber-light:#fef3c7;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--sidebar-w:240px;--header-h:60px;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);}
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--header-h) 1fr;min-height:100vh;}
+.topbar{grid-column:1/-1;background:var(--green-900);display:flex;align-items:center;padding:0 1.25rem 0 0;border-bottom:1px solid var(--green-800);position:sticky;top:0;z-index:50;}
+.topbar-brand{width:var(--sidebar-w);flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 1.25rem;border-right:1px solid rgba(255,255,255,0.07);height:100%;}
+.brand-logo{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);flex-shrink:0;}
+.brand-name{font-size:13px;font-weight:600;color:#fff;}.brand-sub{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.topbar-spacer{flex:1;}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);padding:5px 10px 5px 6px;cursor:pointer;margin-left:8px;}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:var(--green-500);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.uname{font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.85);}.urole{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.sidebar{background:var(--white);border-right:1px solid var(--gray-200);padding:1rem 0;overflow-y:auto;display:flex;flex-direction:column;}
+.nav-section{padding:0 0.75rem;margin-bottom:0.25rem;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);padding:0.5rem 0.5rem 0.35rem;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;text-decoration:none;color:var(--gray-600);font-size:13.5px;transition:background 0.13s,color 0.13s;position:relative;}
+.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.nav-item:hover{background:var(--green-50);color:var(--green-700);}
+.nav-item.active{background:var(--green-50);color:var(--green-700);font-weight:500;}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;border-radius:0 3px 3px 0;background:var(--green-500);}
+.sidebar-bottom{margin-top:auto;padding:0.75rem;border-top:1px solid var(--gray-200);}
+.main{overflow-y:auto;background:var(--gray-50);}
+.page-body{padding:1.25rem 1.75rem;}
+
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--gray-400);margin-bottom:1rem;}
+.breadcrumb a{color:var(--gray-400);text-decoration:none;}
+.breadcrumb a:hover{color:var(--green-600);}
+.breadcrumb svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* Subject hero */
+.subject-hero{background:linear-gradient(135deg,var(--green-900) 0%,var(--green-700) 100%);border-radius:var(--radius-lg);padding:1.75rem 2rem;margin-bottom:1.25rem;position:relative;overflow:hidden;}
+.subject-hero::before{content:'';position:absolute;right:-50px;top:-50px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.04);}
+.subject-hero-inner{position:relative;z-index:1;}
+.subject-code-badge{display:inline-flex;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:3px 11px;font-size:11.5px;font-weight:600;color:#fff;letter-spacing:0.04em;margin-bottom:10px;}
+.subject-hero h1{font-size:1.5rem;font-weight:600;color:#fff;letter-spacing:-0.01em;margin-bottom:6px;}
+.subject-hero-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;}
+.shm-item{display:flex;align-items:center;gap:7px;font-size:12.5px;color:rgba(255,255,255,0.65);}
+.shm-item svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem;}
+.stat-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1rem 1.1rem;display:flex;align-items:flex-start;gap:12px;}
+.stat-icon{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.stat-icon.green{background:var(--green-50);color:var(--green-600);}
+.stat-icon.blue{background:var(--blue-light);color:var(--blue);}
+.stat-icon.amber{background:var(--amber-light);color:var(--amber);}
+.stat-val{font-size:1.5rem;font-weight:600;color:var(--gray-800);line-height:1;}
+.stat-label{font-size:12px;color:var(--gray-400);margin-top:3px;}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--gray-200);margin-bottom:1.25rem;}
+.tab-btn{padding:8px 14px;font-size:13.5px;font-weight:500;color:var(--gray-400);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s,border-color 0.15s;}
+.tab-btn:hover{color:var(--green-600);}
+.tab-btn.active{color:var(--green-700);border-bottom-color:var(--green-500);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:12px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.card-title{font-size:14px;font-weight:600;color:var(--gray-800);}
+.card-sub{font-size:12px;color:var(--gray-400);margin-top:2px;}
+
+/* Syllabus content */
+.syllabus-section{margin-bottom:1.25rem;}
+.syllabus-section:last-child{margin-bottom:0;}
+.syl-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-400);margin-bottom:8px;}
+.syl-text{font-size:13.5px;color:var(--gray-700);line-height:1.7;}
+.syl-list{margin-left:0;padding-left:0;list-style:none;}
+.syl-list li{font-size:13.5px;color:var(--gray-700);line-height:1.6;padding-left:18px;position:relative;margin-bottom:4px;}
+.syl-list li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--green-400);}
+
+/* Topic timeline */
+.topic-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--gray-100);}
+.topic-item:last-child{border-bottom:none;}
+.topic-week{width:64px;flex-shrink:0;}
+.topic-week-num{font-size:11px;font-weight:600;color:var(--gray-400);text-transform:uppercase;}
+.topic-week-status{margin-top:3px;}
+.topic-content{flex:1;}
+.topic-title{font-size:13.5px;font-weight:500;color:var(--gray-800);}
+.topic-desc{font-size:12px;color:var(--gray-400);margin-top:2px;}
+
+/* Schedule grid */
+.sched-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--gray-100);}
+.sched-row:last-child{border-bottom:none;}
+.sched-day{width:36px;height:36px;border-radius:50%;background:var(--green-50);color:var(--green-700);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;}
+
+/* Materials/assignments mini-list */
+.mini-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-100);}
+.mini-row:last-child{border-bottom:none;}
+.mini-icon{width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mini-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.mini-name{font-size:13px;font-weight:500;color:var(--gray-800);flex:1;}
+.mini-meta{font-size:11.5px;color:var(--gray-400);}
+
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:500;}
+.badge.green{background:var(--green-50);color:var(--green-700);}
+.badge.amber{background:var(--amber-light);color:#92400e;}
+.badge.gray{background:var(--gray-100);color:var(--gray-600);}
+.badge.red{background:var(--red-light);color:#b91c1c;}
+.badge.blue{background:var(--blue-light);color:var(--blue);}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;border:none;transition:background 0.15s;text-decoration:none;white-space:nowrap;}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.btn-primary{background:var(--green-600);color:#fff;}
+.btn-primary:hover{background:var(--green-700);}
+.btn-secondary{background:var(--white);color:var(--gray-700);border:1px solid var(--gray-200);}
+.btn-secondary:hover{background:var(--gray-50);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+.progress{background:var(--gray-100);border-radius:20px;height:6px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:20px;background:var(--green-500);}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="topbar-brand"><div class="brand-logo">TCM</div><div><div class="brand-name">TCM LMS</div><div class="brand-sub">The College of Maasin</div></div></div>
+  <div class="topbar-spacer"></div>
+  <div class="user-chip"><div class="user-avatar">JD</div><div><div class="uname">Juan dela Cruz</div><div class="urole">BSIT 3-B · Student</div></div></div>
+</header>
+<aside class="sidebar">
+  <div class="nav-section">
+    <div class="nav-label">Navigation</div>
+    <a class="nav-item" href="student-dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item active" href="subject-detail.html"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>My Subjects</a>
+    <a class="nav-item" href="learning-materials.html"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Learning Materials</a>
+    <a class="nav-item" href="quiz-exam.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quiz / Exam</a>
+    <a class="nav-item" href="profile.html"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+  </div>
+  <div class="sidebar-bottom"><a class="nav-item" href="tcm-lms-login.html" onclick="event.preventDefault();(async()=>{const t=localStorage.getItem('tcm_token')||'';await fetch('api/auth/logout.php',{method:'POST',headers:{'Authorization':'Bearer '+t}}).catch(()=>{});localStorage.clear();window.location.href='tcm-lms-login.html';})()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</a></div>
+</aside>
+
+<main class="main">
+  <div class="page-body">
+
+    <div class="breadcrumb">
+      <a href="student-dashboard.html">Dashboard</a>
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      <a href="student-dashboard.html">My Subjects</a>
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      <span>IT311 — Web Systems &amp; Technologies</span>
+    </div>
+
+    <!-- Hero -->
+    <div class="subject-hero">
+      <div class="subject-hero-inner">
+        <span class="subject-code-badge">IT311 · 3 Units</span>
+        <h1>Web Systems &amp; Technologies</h1>
+        <div class="subject-hero-meta">
+          <span class="shm-item"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Lourdes E. Siaton</span>
+          <span class="shm-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>MWF 7:30–8:30 AM</span>
+          <span class="shm-item"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Room 302</span>
+          <span class="shm-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>BSIT 3-B · 35 students</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="stat-val">91</div><div class="stat-label">Current Average</div></div></div>
+      <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="stat-val">97%</div><div class="stat-label">Attendance</div></div></div>
+      <div class="stat-card"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="stat-val">1</div><div class="stat-label">Pending Task</div></div></div>
+      <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div><div class="stat-val">8</div><div class="stat-label">Materials Posted</div></div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-syllabus')">Syllabus</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-topics')">Course Topics</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-materials')">Recent Materials</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-assignments')">Assignments</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-schedule')">Class Schedule</button>
+    </div>
+
+    <!-- TAB: SYLLABUS -->
+    <div id="tab-syllabus" class="tab-panel active">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Course Description</div></div>
+        <div class="syl-text">This course introduces students to the fundamental concepts and technologies used in building modern web systems. Topics include HTML5, CSS3, JavaScript, responsive design principles, and an introduction to client-server architecture. Students will design and develop functional, accessible web pages and apply best practices in front-end development throughout the semester.</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Learning Objectives</div></div>
+        <ul class="syl-list">
+          <li>Apply semantic HTML5 structure to build accessible web pages</li>
+          <li>Use CSS3 (including Flexbox and Grid) to create responsive layouts</li>
+          <li>Write JavaScript to add interactivity and DOM manipulation</li>
+          <li>Understand the basics of client-server communication and APIs</li>
+          <li>Design and deploy a complete personal portfolio website</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Grading Breakdown</div></div>
+        <div class="syllabus-section">
+          <div class="syl-label">Per Grading Period</div>
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <div style="flex:1;background:var(--gray-50);border-radius:var(--radius-sm);padding:10px;text-align:center;"><div style="font-weight:600;font-size:14px;color:var(--gray-800)">30%</div><div style="font-size:11.5px;color:var(--gray-400)">Assignments</div></div>
+            <div style="flex:1;background:var(--gray-50);border-radius:var(--radius-sm);padding:10px;text-align:center;"><div style="font-weight:600;font-size:14px;color:var(--gray-800)">20%</div><div style="font-size:11.5px;color:var(--gray-400)">Quizzes</div></div>
+            <div style="flex:1;background:var(--gray-50);border-radius:var(--radius-sm);padding:10px;text-align:center;"><div style="font-weight:600;font-size:14px;color:var(--gray-800)">50%</div><div style="font-size:11.5px;color:var(--gray-400)">Major Exam</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Course Requirements &amp; Policies</div></div>
+        <ul class="syl-list">
+          <li>Minimum 80% attendance required per grading period</li>
+          <li>Late submissions incur a 5-point deduction per day unless excused</li>
+          <li>Early submissions (1+ days before deadline) earn up to 5 bonus points</li>
+          <li>Final project (portfolio website) is required to pass the course</li>
+          <li>Academic dishonesty results in automatic failure of the activity</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- TAB: TOPICS -->
+    <div id="tab-topics" class="tab-panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Weekly Course Topics</div><div class="card-sub">First Semester · A.Y. 2026–2027</div></div>
+        <div class="topic-item"><div class="topic-week"><div class="topic-week-num">Week 1</div><div class="topic-week-status"><span class="badge green" style="font-size:10px">Done</span></div></div><div class="topic-content"><div class="topic-title">Introduction to Web Systems</div><div class="topic-desc">Course overview, web architecture basics, setting up dev environment</div></div></div>
+        <div class="topic-item"><div class="topic-week"><div class="topic-week-num">Week 2–3</div><div class="topic-week-status"><span class="badge green" style="font-size:10px">Done</span></div></div><div class="topic-content"><div class="topic-title">HTML5 Fundamentals</div><div class="topic-desc">Semantic elements, forms, multimedia, accessibility basics</div></div></div>
+        <div class="topic-item"><div class="topic-week"><div class="topic-week-num">Week 4–5</div><div class="topic-week-status"><span class="badge green" style="font-size:10px">Done</span></div></div><div class="topic-content"><div class="topic-title">CSS3 &amp; Responsive Design</div><div class="topic-desc">Flexbox, Grid, media queries, mobile-first approach</div></div></div>
+        <div class="topic-item"><div class="topic-week"><div class="topic-week-num">Week 6–7</div><div class="topic-week-status"><span class="badge green" style="font-size:10px">Done</span></div></div><div class="topic-content"><div class="topic-title">JavaScript Basics</div><div class="topic-desc">Variables, functions, events, control structures</div></div></div>
+        <div class="topic-item"><div class="topic-week"><div class="topic-week-num">Week 8</div><div class="topic-week-status"><span class="badge amber" style="font-size:10px">Current</span></div></div><div class="topic-content"><div class="topic-title">DOM Manipulation</div><div class="topic-desc">Selecting elements, event listeners, dynamic content updates</div></div></div>
+        <div class="topic-item"><div class="topic-week"><div class="topic-week-num">Week 9</div><div class="topic-week-status"><span class="badge gray" style="font-size:10px">Upcoming</span></div></div><div class="topic-content"><div class="topic-title">Final Project Work</div><div class="topic-desc">Building and deploying your personal portfolio website</div></div></div>
+        <div class="topic-item"><div class="topic-week"><div class="topic-week-num">Week 10</div><div class="topic-week-status"><span class="badge gray" style="font-size:10px">Upcoming</span></div></div><div class="topic-content"><div class="topic-title">Project Presentations</div><div class="topic-desc">Final defense and peer review of portfolio websites</div></div></div>
+      </div>
+    </div>
+
+    <!-- TAB: MATERIALS -->
+    <div id="tab-materials" class="tab-panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Learning Materials</div><a href="learning-materials.html" class="btn btn-secondary btn-sm">View all materials</a></div>
+        <div class="mini-row"><div class="mini-icon" style="background:var(--amber-light);color:var(--amber)"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="mini-name">Week 8 — JavaScript DOM Manipulation</div><div class="mini-meta">PPTX · Jun 25, 2026</div></div>
+        <div class="mini-row"><div class="mini-icon" style="background:var(--red-light);color:var(--red)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="mini-name">Week 6 — Responsive Design Guide</div><div class="mini-meta">PDF · Jun 10, 2026</div></div>
+        <div class="mini-row"><div class="mini-icon" style="background:var(--gray-100);color:var(--gray-600)"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><div class="mini-name">MDN Web Docs — JavaScript Reference</div><div class="mini-meta">External Link · Jun 1, 2026</div></div>
+        <div class="mini-row"><div class="mini-icon" style="background:var(--red-light);color:var(--red)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="mini-name">Course Syllabus — IT311</div><div class="mini-meta">PDF · May 10, 2026</div></div>
+      </div>
+    </div>
+
+    <!-- TAB: ASSIGNMENTS -->
+    <div id="tab-assignments" class="tab-panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">All Assignments for this Subject</div><a href="quiz-exam.html" class="btn btn-secondary btn-sm">Quiz / Exam page</a></div>
+        <div class="mini-row"><div class="mini-icon" style="background:var(--blue-light);color:var(--blue)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="mini-name">Final Project — Portfolio Website</div><div class="mini-meta" style="color:var(--red)">Due Jun 27</div></div>
+        <div class="mini-row"><div class="mini-icon" style="background:var(--green-50);color:var(--green-600)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="mini-name">Assignment 3 — JS DOM</div><div class="mini-meta">Graded — 28/30</div></div>
+        <div class="mini-row"><div class="mini-icon" style="background:var(--green-50);color:var(--green-600)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="mini-name">Midterm Exam</div><div class="mini-meta">Graded — 45/50</div></div>
+        <div class="mini-row"><div class="mini-icon" style="background:var(--green-50);color:var(--green-600)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="mini-name">Assignment 1 — HTML Structure</div><div class="mini-meta">Graded — 28/30</div></div>
+        <div class="mini-row"><div class="mini-icon" style="background:var(--green-50);color:var(--green-600)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="mini-name">Quiz 2 — CSS Flexbox</div><div class="mini-meta">Graded — 14/15</div></div>
+      </div>
+    </div>
+
+    <!-- TAB: SCHEDULE -->
+    <div id="tab-schedule" class="tab-panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Class Schedule</div></div>
+        <div class="sched-row"><div class="sched-day">MON</div><div style="flex:1"><div style="font-size:13.5px;font-weight:500">Lecture &amp; Hands-on Lab</div><div style="font-size:12px;color:var(--gray-400)">7:30 AM – 8:30 AM · Room 302</div></div></div>
+        <div class="sched-row"><div class="sched-day">WED</div><div style="flex:1"><div style="font-size:13.5px;font-weight:500">Lecture &amp; Hands-on Lab</div><div style="font-size:12px;color:var(--gray-400)">7:30 AM – 8:30 AM · Room 302</div></div></div>
+        <div class="sched-row"><div class="sched-day">FRI</div><div style="flex:1"><div style="font-size:13.5px;font-weight:500">Lecture &amp; Hands-on Lab</div><div style="font-size:12px;color:var(--gray-400)">7:30 AM – 8:30 AM · Room 302</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+<script>
+function switchTab(btn,id){
+  btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── Auth guard: redirect to login if no session token ──────────────────────
+(function guardAuth() {
+  const token = localStorage.getItem('tcm_token');
+  const role  = localStorage.getItem('tcm_role');
+  if (!token || role !== 'student') {
+    window.location.href = 'tcm-lms-login.html';
+    return;
+  }
+  // Hydrate displayed user name from localStorage (no network round-trip)
+  const user = localStorage.getItem('tcm_user');
+  if (user) {
+    try {
+      const u   = JSON.parse(user);
+      const el  = document.querySelector('.uname');
+      if (el) el.textContent = u.full_name || u.first_name || el.textContent;
+    } catch(_) {}
+  }
+})();
+
+// ── Notifications: fetch unread count on load, update bell badge ────────────
+async function loadNotifications() {
+  const token = localStorage.getItem('tcm_token') || '';
+  if (!token) return;
+  try {
+    const res  = await fetch('api/notifications/index.php?unread_only=1&limit=10', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success) return;
+
+    // Update bell badge count
+    const count   = json.data.unread_count || 0;
+    const badges  = document.querySelectorAll('.notif-badge, .bell-badge, [data-notif-count]');
+    badges.forEach(b => {
+      b.textContent = count > 9 ? '9+' : count;
+      b.style.display = count > 0 ? '' : 'none';
+    });
+
+    // If there is a notifications dropdown, populate it
+    const list = document.getElementById('notif-list');
+    if (list && json.data.notifications.length) {
+      list.innerHTML = json.data.notifications.slice(0, 5).map(n => `
+        <div class="notif-item${n.is_read ? '' : ' unread'}"
+             onclick="markNotifRead(${n.notification_id}, this)">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-body">${n.body || ''}</div>
+          <div class="notif-time">${new Date(n.created_at).toLocaleString()}</div>
+        </div>`).join('');
+    }
+  } catch(_) { /* non-fatal */ }
+}
+
+async function markNotifRead(id, el) {
+  const token = localStorage.getItem('tcm_token') || '';
+  el.classList.remove('unread');
+  try {
+    await fetch('api/notifications/index.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'mark_read', notification_id: id })
+    });
+    await loadNotifications(); // refresh badge count
+  } catch(_) {}
+}
+
+// Run on load
+loadNotifications();
+</script>
+</body>
+</html>

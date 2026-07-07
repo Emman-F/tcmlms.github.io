@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TCM LMS — My Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green-900:#0f2d16;--green-800:#163d1f;--green-700:#1e5429;--green-600:#276934;
+  --green-500:#2f7d3c;--green-400:#3a9649;--green-200:#93d3a0;--green-100:#c8ecce;--green-50:#eaf5ec;
+  --white:#fff;--gray-50:#f8faf8;--gray-100:#f0f4f1;--gray-200:#dde6de;
+  --gray-300:#c4d0c6;--gray-400:#8fa894;--gray-600:#4d6652;--gray-700:#374d3b;--gray-800:#1e2e21;
+  --red:#dc3545;--red-light:#fdecea;--blue:#1a6bb5;--blue-light:#e8f1fb;
+  --amber:#b45309;--amber-light:#fef3c7;--gold:#c9a84c;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+  --sidebar-w:240px;--header-h:60px;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);}
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--header-h) 1fr;min-height:100vh;}
+
+/* Topbar */
+.topbar{grid-column:1/-1;background:var(--green-900);display:flex;align-items:center;padding:0 1.25rem 0 0;border-bottom:1px solid var(--green-800);position:sticky;top:0;z-index:50;}
+.topbar-brand{width:var(--sidebar-w);flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 1.25rem;border-right:1px solid rgba(255,255,255,0.07);height:100%;}
+.brand-logo{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-logo span{font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);}
+.brand-name{font-size:13px;font-weight:600;color:#fff;line-height:1.2;}
+.brand-sub{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.topbar-spacer{flex:1;}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);padding:5px 10px 5px 6px;cursor:pointer;margin-left:4px;}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:var(--green-500);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.uname{font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.85);}
+.urole{font-size:10.5px;color:rgba(255,255,255,0.4);}
+
+/* Sidebar */
+.sidebar{background:var(--white);border-right:1px solid var(--gray-200);padding:1rem 0;overflow-y:auto;display:flex;flex-direction:column;}
+.nav-section{padding:0 0.75rem;margin-bottom:0.25rem;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);padding:0.5rem 0.5rem 0.35rem;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;text-decoration:none;color:var(--gray-600);font-size:13.5px;transition:background 0.13s,color 0.13s;position:relative;}
+.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.nav-item:hover{background:var(--green-50);color:var(--green-700);}
+.nav-item.active{background:var(--green-50);color:var(--green-700);font-weight:500;}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;border-radius:0 3px 3px 0;background:var(--green-500);}
+.sidebar-bottom{margin-top:auto;padding:0.75rem;border-top:1px solid var(--gray-200);}
+
+/* Tabs inside sidebar */
+.profile-nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;text-decoration:none;color:var(--gray-600);font-size:13px;transition:background 0.13s,color 0.13s;}
+.profile-nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.profile-nav-item:hover{background:var(--green-50);color:var(--green-700);}
+.profile-nav-item.active{background:var(--green-50);color:var(--green-700);font-weight:500;}
+
+/* Main */
+.main{overflow-y:auto;background:var(--gray-50);display:flex;flex-direction:column;}
+.page-body{padding:1.75rem;flex:1;}
+
+/* Profile hero */
+.profile-hero{background:linear-gradient(135deg,var(--green-900) 0%,var(--green-700) 100%);border-radius:var(--radius-lg);padding:2rem;display:flex;align-items:center;gap:1.5rem;margin-bottom:1.25rem;position:relative;overflow:hidden;}
+.profile-hero::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);}
+.profile-hero::after{content:'';position:absolute;right:60px;bottom:-60px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.03);}
+.profile-avatar-lg{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.15);border:3px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.75rem;font-weight:600;color:#fff;flex-shrink:0;position:relative;cursor:pointer;}
+.avatar-edit{position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--green-500);border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;}
+.avatar-edit svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.profile-hero-info{flex:1;position:relative;z-index:1;}
+.profile-hero-name{font-size:1.35rem;font-weight:600;color:#fff;margin-bottom:4px;}
+.profile-hero-id{font-size:13px;color:rgba(255,255,255,0.6);}
+.profile-hero-meta{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;}
+.profile-meta-item{display:flex;align-items:center;gap:6px;font-size:12.5px;color:rgba(255,255,255,0.65);}
+.profile-meta-item svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.profile-hero-actions{display:flex;gap:8px;position:relative;z-index:1;}
+
+/* Cards */
+.card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:12px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--gray-100);}
+.card-title{font-size:14px;font-weight:600;color:var(--gray-800);}
+.card-sub{font-size:12px;color:var(--gray-400);margin-top:2px;}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-400);margin-bottom:12px;margin-top:4px;}
+
+/* Form elements */
+.form-group{margin-bottom:1rem;}
+.form-group label{display:block;font-size:12.5px;font-weight:500;color:var(--gray-600);margin-bottom:5px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13.5px;font-family:'Inter',sans-serif;color:var(--gray-800);background:#fff;outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green-400);box-shadow:0 0 0 3px rgba(47,125,60,0.10);}
+.form-group input[readonly]{background:var(--gray-50);color:var(--gray-600);cursor:not-allowed;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.input-with-badge{position:relative;}
+.input-badge{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:20px;}
+
+/* Info row (read-only display) */
+.info-row{display:flex;align-items:flex-start;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);}
+.info-row:last-child{border-bottom:none;}
+.info-label{font-size:12.5px;color:var(--gray-400);width:160px;flex-shrink:0;}
+.info-value{font-size:13.5px;color:var(--gray-800);font-weight:500;flex:1;}
+
+/* Stat chips */
+.stat-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem;}
+.stat-chip{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:.9rem 1rem;text-align:center;}
+.stat-chip-val{font-size:1.4rem;font-weight:600;color:var(--gray-800);line-height:1;}
+.stat-chip-label{font-size:11.5px;color:var(--gray-400);margin-top:3px;}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:500;}
+.badge.green{background:var(--green-50);color:var(--green-700);}
+.badge.blue{background:var(--blue-light);color:var(--blue);}
+.badge.amber{background:var(--amber-light);color:#92400e;}
+.badge.gray{background:var(--gray-100);color:var(--gray-600);}
+.badge.gold{background:#fef9e7;color:#92400e;}
+.badge.red{background:var(--red-light);color:#b91c1c;}
+
+/* Btns */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;border:none;transition:background 0.15s,transform 0.1s;text-decoration:none;white-space:nowrap;}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:var(--green-600);color:#fff;}
+.btn-primary:hover{background:var(--green-700);}
+.btn-secondary{background:#fff;color:var(--gray-700);border:1px solid var(--gray-200);}
+.btn-secondary:hover{background:var(--gray-50);}
+.btn-danger{background:var(--red-light);color:#b91c1c;}
+.btn-danger:hover{background:#fcd5d5;}
+.btn-ghost-white{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);}
+.btn-ghost-white:hover{background:rgba(255,255,255,0.18);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+/* Toggle */
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--gray-200);border-radius:20px;transition:background 0.2s;}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform 0.2s;}
+.toggle input:checked+.toggle-slider{background:var(--green-500);}
+.toggle input:checked+.toggle-slider::before{transform:translateX(16px);}
+
+/* Toggle row */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--gray-100);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-info .tname{font-size:13.5px;font-weight:500;color:var(--gray-800);}
+.toggle-info .tdesc{font-size:12px;color:var(--gray-400);margin-top:2px;}
+
+/* Activity item */
+.activity-item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--gray-100);}
+.activity-item:last-child{border-bottom:none;}
+.activity-dot{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.activity-dot svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.activity-dot.green{background:var(--green-50);color:var(--green-600);}
+.activity-dot.blue{background:var(--blue-light);color:var(--blue);}
+.activity-dot.amber{background:var(--amber-light);color:var(--amber);}
+.activity-text{flex:1;font-size:13px;color:var(--gray-700);line-height:1.4;}
+.activity-time{font-size:11.5px;color:var(--gray-400);white-space:nowrap;}
+
+/* Password strength */
+.pw-strength{height:4px;border-radius:20px;background:var(--gray-100);overflow:hidden;margin-top:6px;}
+.pw-strength-fill{height:100%;border-radius:20px;transition:width 0.3s,background 0.3s;width:0%;}
+.pw-hint{font-size:11.5px;margin-top:4px;}
+
+/* Progress */
+.progress{background:var(--gray-100);border-radius:20px;height:6px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:20px;background:var(--green-500);}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(10,31,15,0.45);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:var(--radius-lg);width:100%;max-width:460px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.18);animation:slideUp 0.2s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:15px;font-weight:600;color:var(--gray-800);}
+.modal-body{padding:1.5rem;}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--gray-200);display:flex;align-items:center;justify-content:flex-end;gap:8px;}
+
+/* Toast */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--gray-800);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;opacity:0;transform:translateY(8px);transition:opacity 0.25s,transform 0.25s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{background:var(--green-700);}
+.toast.error{background:#b91c1c;}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--gray-200);margin-bottom:1.25rem;}
+.tab-btn{padding:8px 14px;font-size:13.5px;font-weight:500;color:var(--gray-400);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s,border-color 0.15s;}
+.tab-btn:hover{color:var(--green-600);}
+.tab-btn.active{color:var(--green-700);border-bottom-color:var(--green-500);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* Avatar upload */
+.avatar-upload-area{width:100px;height:100px;border-radius:50%;border:2px dashed var(--gray-300);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color 0.15s;margin:0 auto 1rem;}
+.avatar-upload-area:hover{border-color:var(--green-400);}
+.avatar-upload-area svg{width:24px;height:24px;stroke:var(--gray-400);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-logo"><span>TCM</span></div>
+    <div><div class="brand-name">TCM LMS</div><div class="brand-sub">The College of Maasin</div></div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div style="display:flex;align-items:center;gap:6px;padding-right:0">
+    <div class="user-chip">
+      <div class="user-avatar">JD</div>
+      <div><div class="uname">Juan dela Cruz</div><div class="urole">BSIT 3-B · Student</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="nav-section">
+    <div class="nav-label">Navigation</div>
+    <a class="nav-item" href="student-dashboard.html">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </a>
+    <a class="nav-item" href="learning-materials.html">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Learning Materials
+    </a>
+    <a class="nav-item" href="quiz-exam.html">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Quiz / Exam
+    </a>
+    <a class="nav-item active" href="profile.html">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile
+    </a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Profile Sections</div>
+    <a class="profile-nav-item active" onclick="switchTab(null,'tab-info')">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Personal Info
+    </a>
+    <a class="profile-nav-item" onclick="switchTab(null,'tab-academic')">
+      <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>Academic Summary
+    </a>
+    <a class="profile-nav-item" onclick="switchTab(null,'tab-security')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Security
+    </a>
+    <a class="profile-nav-item" onclick="switchTab(null,'tab-notifications')">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications
+    </a>
+    <a class="profile-nav-item" onclick="switchTab(null,'tab-activity')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Activity Log
+    </a>
+  </div>
+  <div class="sidebar-bottom">
+    <a class="nav-item" href="tcm-lms-login.html" onclick="event.preventDefault();(async()=>{const t=localStorage.getItem('tcm_token')||'';await fetch('api/auth/logout.php',{method:'POST',headers:{'Authorization':'Bearer '+t}}).catch(()=>{});localStorage.clear();window.location.href='tcm-lms-login.html';})()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="page-body">
+
+    <!-- Profile hero banner -->
+    <div class="profile-hero">
+      <div class="profile-avatar-lg" onclick="openModal('avatar-modal')">
+        JD
+        <div class="avatar-edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+      </div>
+      <div class="profile-hero-info">
+        <div class="profile-hero-name">Juan dela Cruz</div>
+        <div class="profile-hero-id">Student ID: 2024-00123 · juan.dc@tcm.edu.ph</div>
+        <div class="profile-hero-meta">
+          <span class="profile-meta-item"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>BSIT 3-B</span>
+          <span class="profile-meta-item"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>3rd Year · 1st Semester</span>
+          <span class="profile-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Enrolled: May 15, 2026</span>
+          <span class="badge gold" style="border:1px solid var(--gold)">Good Standing</span>
+        </div>
+      </div>
+      <div class="profile-hero-actions">
+        <button class="btn btn-ghost-white btn-sm" onclick="switchTab(null,'tab-info')">
+          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit Profile
+        </button>
+      </div>
+    </div>
+
+    <!-- Stat chips -->
+    <div class="stat-chips">
+      <div class="stat-chip"><div class="stat-chip-val" style="color:var(--green-600)">88.4</div><div class="stat-chip-label">GWA</div></div>
+      <div class="stat-chip"><div class="stat-chip-val">7</div><div class="stat-chip-label">Subjects</div></div>
+      <div class="stat-chip"><div class="stat-chip-val" style="color:var(--green-600)">94%</div><div class="stat-chip-label">Attendance</div></div>
+      <div class="stat-chip"><div class="stat-chip-val">21</div><div class="stat-chip-label">Units</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" id="profile-tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-info')">Personal Info</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-academic')">Academic Summary</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-security')">Security</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-notifications')">Notifications</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-activity')">Activity Log</button>
+    </div>
+
+    <!-- ═══ TAB: PERSONAL INFO ═══ -->
+    <div id="tab-info" class="tab-panel active">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Personal Information</div><div class="card-sub">Update your personal details and contact information</div></div>
+          <button class="btn btn-primary btn-sm" onclick="saveProfile()">
+            <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save Changes
+          </button>
+        </div>
+
+        <div class="section-label">Basic Information</div>
+        <div class="form-row" style="margin-bottom:1rem">
+          <div class="form-group" style="margin-bottom:0"><label>First Name</label><input type="text" value="Juan" /></div>
+          <div class="form-group" style="margin-bottom:0"><label>Last Name</label><input type="text" value="dela Cruz" /></div>
+        </div>
+        <div class="form-row" style="margin-bottom:1rem">
+          <div class="form-group" style="margin-bottom:0"><label>Middle Name</label><input type="text" value="Santos" /></div>
+          <div class="form-group" style="margin-bottom:0"><label>Suffix</label><select><option>None</option><option>Jr.</option><option>Sr.</option><option>II</option><option>III</option></select></div>
+        </div>
+        <div class="form-row" style="margin-bottom:1.25rem">
+          <div class="form-group" style="margin-bottom:0"><label>Date of Birth</label><input type="date" value="2005-03-15" /></div>
+          <div class="form-group" style="margin-bottom:0"><label>Gender</label><select><option>Male</option><option>Female</option><option>Prefer not to say</option></select></div>
+        </div>
+
+        <div class="section-label">Contact Information</div>
+        <div class="form-row" style="margin-bottom:1rem">
+          <div class="form-group" style="margin-bottom:0">
+            <label>School Email</label>
+            <div class="input-with-badge">
+              <input type="email" value="juan.dc@tcm.edu.ph" readonly />
+              <span class="input-badge badge green" style="position:absolute;right:10px;top:50%;transform:translateY(-50%)">Verified</span>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0"><label>Personal Email</label><input type="email" value="juan.delacruz@gmail.com" /></div>
+        </div>
+        <div class="form-row" style="margin-bottom:1.25rem">
+          <div class="form-group" style="margin-bottom:0"><label>Mobile Number</label><input type="tel" value="09171234567" /></div>
+          <div class="form-group" style="margin-bottom:0"><label>Alternative Number</label><input type="tel" placeholder="Optional" /></div>
+        </div>
+
+        <div class="section-label">Address</div>
+        <div class="form-group"><label>Street / Barangay</label><input type="text" value="Brgy. Abgao, Maasin City" /></div>
+        <div class="form-row-3">
+          <div class="form-group" style="margin-bottom:0"><label>City / Municipality</label><input type="text" value="Maasin City" /></div>
+          <div class="form-group" style="margin-bottom:0"><label>Province</label><input type="text" value="Southern Leyte" /></div>
+          <div class="form-group" style="margin-bottom:0"><label>ZIP Code</label><input type="text" value="6600" /></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Academic Information</div><div class="card-sub">Read-only — contact the Registrar to update</div></div></div>
+        <div class="info-row"><span class="info-label">Student ID</span><span class="info-value">2024-00123</span></div>
+        <div class="info-row"><span class="info-label">Program</span><span class="info-value">Bachelor of Science in Information Technology (BSIT)</span></div>
+        <div class="info-row"><span class="info-label">Year &amp; Section</span><span class="info-value">3rd Year — Section B</span></div>
+        <div class="info-row"><span class="info-label">Department</span><span class="info-value">College of Information Technology</span></div>
+        <div class="info-row"><span class="info-label">Academic Track</span><span class="info-value">Regular</span></div>
+        <div class="info-row"><span class="info-label">Enrollment Status</span><span class="info-value"><span class="badge green">Enrolled</span></span></div>
+        <div class="info-row"><span class="info-label">Scholarship</span><span class="info-value">None</span></div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: ACADEMIC SUMMARY ═══ -->
+    <div id="tab-academic" class="tab-panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Current Semester Performance</div><span class="badge green">1st Semester · A.Y. 2026–2027</span></div>
+        <table style="width:100%;border-collapse:collapse;font-size:13.5px;">
+          <thead><tr style="border-bottom:1px solid var(--gray-200)"><th style="text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-400);padding:0 10px 10px;">Subject</th><th style="text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-400);padding:0 10px 10px;">Units</th><th style="text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-400);padding:0 10px 10px;">Prelim</th><th style="text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-400);padding:0 10px 10px;">Midterm</th><th style="text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-400);padding:0 10px 10px;">Ave.</th><th style="text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-400);padding:0 10px 10px;">Attendance</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--gray-100)"><td style="padding:11px 10px;font-weight:500">IT311 Web Systems</td><td style="padding:11px 10px">3</td><td style="padding:11px 10px">90</td><td style="padding:11px 10px">92</td><td style="padding:11px 10px;font-weight:600;color:var(--green-600)">91</td><td style="padding:11px 10px"><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:97%"></div></div><span style="font-size:12px;color:var(--gray-400)">97%</span></div></td></tr>
+            <tr style="border-bottom:1px solid var(--gray-100)"><td style="padding:11px 10px;font-weight:500">IT312 Database</td><td style="padding:11px 10px">3</td><td style="padding:11px 10px">85</td><td style="padding:11px 10px">89</td><td style="padding:11px 10px;font-weight:600;color:var(--green-600)">87</td><td style="padding:11px 10px"><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:92%"></div></div><span style="font-size:12px;color:var(--gray-400)">92%</span></div></td></tr>
+            <tr style="border-bottom:1px solid var(--gray-100)"><td style="padding:11px 10px;font-weight:500">IT313 Networks</td><td style="padding:11px 10px">3</td><td style="padding:11px 10px">82</td><td style="padding:11px 10px">86</td><td style="padding:11px 10px;font-weight:600;color:var(--amber)">84</td><td style="padding:11px 10px"><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:87%"></div></div><span style="font-size:12px;color:var(--amber)">87%</span></div></td></tr>
+            <tr style="border-bottom:1px solid var(--gray-100)"><td style="padding:11px 10px;font-weight:500">GE401 Ethics</td><td style="padding:11px 10px">2</td><td style="padding:11px 10px">88</td><td style="padding:11px 10px">92</td><td style="padding:11px 10px;font-weight:600;color:var(--green-600)">90</td><td style="padding:11px 10px"><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:100%"></div></div><span style="font-size:12px;color:var(--gray-400)">100%</span></div></td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:13px;color:var(--gray-600)">General Weighted Average</span>
+          <span style="font-size:1.25rem;font-weight:600;color:var(--green-600)">88.4</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: SECURITY ═══ -->
+    <div id="tab-security" class="tab-panel">
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-header"><div><div class="card-title">Change Password</div><div class="card-sub">Use a strong, unique password you don't use elsewhere</div></div></div>
+        <div class="form-group"><label>Current Password <span style="color:var(--red)">*</span></label><input type="password" placeholder="Enter current password" /></div>
+        <div class="form-group">
+          <label>New Password <span style="color:var(--red)">*</span></label>
+          <input type="password" id="new-pw" placeholder="At least 8 characters" oninput="checkPwStrength(this.value)" />
+          <div class="pw-strength"><div class="pw-strength-fill" id="pw-fill"></div></div>
+          <div class="pw-hint" id="pw-hint" style="color:var(--gray-400)">Enter a password to check strength</div>
+        </div>
+        <div class="form-group"><label>Confirm New Password <span style="color:var(--red)">*</span></label><input type="password" id="confirm-pw" placeholder="Re-enter new password" /></div>
+        <button class="btn btn-primary" onclick="changePassword()">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Update Password
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Login Sessions</div><div class="card-sub">Devices currently logged into your account</div></div></div>
+        <div class="info-row">
+          <div style="flex:1">
+            <div style="font-size:13.5px;font-weight:500;display:flex;align-items:center;gap:8px">Chrome · Windows 11 <span class="badge green" style="font-size:10px">Current</span></div>
+            <div style="font-size:12px;color:var(--gray-400);margin-top:2px">192.168.1.42 · Last active: just now</div>
+          </div>
+        </div>
+        <div class="info-row">
+          <div style="flex:1">
+            <div style="font-size:13.5px;font-weight:500">Safari · iPhone</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-top:2px">192.168.1.55 · Last active: Jun 26, 8:14 PM</div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="revokeAllSessions()">Revoke</button>
+        </div>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--gray-100)">
+          <button class="btn btn-danger btn-sm" onclick="revokeAllSessions()">Revoke All Other Sessions</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: NOTIFICATIONS ═══ -->
+    <div id="tab-notifications" class="tab-panel">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Notification Preferences</div><div class="card-sub">Choose what you want to be notified about</div></div>
+          <button class="btn btn-primary btn-sm" onclick="saveNotificationPrefs()">Save</button>
+        </div>
+        <div class="section-label">Academic</div>
+        <div class="toggle-row"><div class="toggle-info"><div class="tname">New Assignment Posted</div><div class="tdesc">When an instructor posts a new assignment or activity</div></div><label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="tname">Deadline Reminders</div><div class="tdesc">24 hours before an assignment or quiz is due</div></div><label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="tname">Grade Released</div><div class="tdesc">When an instructor grades your submission</div></div><label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="tname">Attendance Marked</div><div class="tdesc">When your attendance is recorded for the day</div></div><label class="toggle"><input type="checkbox" /><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="tname">New Learning Material</div><div class="tdesc">When new files or links are uploaded by instructors</div></div><label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+
+        <div class="section-label" style="margin-top:1rem">System</div>
+        <div class="toggle-row"><div class="toggle-info"><div class="tname">System Announcements</div><div class="tdesc">Institutional news and important notices</div></div><label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="tname">Class Ranking Updated</div><div class="tdesc">When class rankings are computed and released</div></div><label class="toggle"><input type="checkbox" /><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="tname">Email Notifications</div><div class="tdesc">Send selected notifications to your email address</div></div><label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: ACTIVITY LOG ═══ -->
+    <div id="tab-activity" class="tab-panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Activity</div><span style="font-size:12.5px;color:var(--gray-400)">Last 30 days</span></div>
+        <div class="activity-item"><div class="activity-dot green"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="activity-text">Submitted <strong>Final Project — Portfolio Website</strong> for IT311 Web Systems</div><div class="activity-time">Jun 27, 10:23 AM</div></div>
+        <div class="activity-item"><div class="activity-dot blue"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="activity-text">Viewed <strong>Week 8 — JavaScript DOM Manipulation</strong> (IT311)</div><div class="activity-time">Jun 26, 4:10 PM</div></div>
+        <div class="activity-item"><div class="activity-dot amber"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="activity-text">Grade received: <strong>Assignment 2 — ERD Diagram</strong> · Score: 28/30 (IT312)</div><div class="activity-time">Jun 25, 2:00 PM</div></div>
+        <div class="activity-item"><div class="activity-dot green"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="activity-text">Submitted <strong>Assignment 2 — ERD Diagram</strong> for IT312 Database</div><div class="activity-time">Jun 18, 11:45 PM</div></div>
+        <div class="activity-item"><div class="activity-dot blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="activity-text">Completed <strong>Quiz 2 — CSS Flexbox</strong> · Score: 14/15 (IT311)</div><div class="activity-time">Jun 15, 9:30 AM</div></div>
+        <div class="activity-item"><div class="activity-dot green"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></div><div class="activity-text">Logged in from <strong>Chrome · Windows 11</strong> (192.168.1.42)</div><div class="activity-time">Jun 27, 7:05 AM</div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<!-- AVATAR MODAL -->
+<div class="modal-overlay" id="avatar-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Update Profile Photo</div><button class="btn" style="background:none;border:none;cursor:pointer;font-size:16px;" onclick="closeModal('avatar-modal')">✕</button></div>
+    <div class="modal-body">
+      <label class="avatar-upload-area" for="av-input">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:6px;text-align:center">Click to upload photo</div>
+        <input type="file" id="av-input" accept="image/*" style="display:none" onchange="previewAvatar(this)" />
+      </label>
+      <div style="font-size:12.5px;color:var(--gray-400);text-align:center">JPG or PNG · Max 5 MB · Square recommended</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('avatar-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="uploadAvatar()">Save Photo</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* Tabs */
+function switchTab(btn, id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // update top tabs
+  document.querySelectorAll('#profile-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // update sidebar nav
+  document.querySelectorAll('.profile-nav-item').forEach(n => n.classList.remove('active'));
+  const map = {'tab-info':0,'tab-academic':1,'tab-security':2,'tab-notifications':3,'tab-activity':4};
+  const idx = map[id];
+  if (idx !== undefined) {
+    const navItems = document.querySelectorAll('.profile-nav-item');
+    if (navItems[idx]) navItems[idx].classList.add('active');
+  }
+  // sync top tabs if triggered from sidebar
+  if (!btn) {
+    const tabBtns = document.querySelectorAll('#profile-tabs .tab-btn');
+    if (tabBtns[idx !== undefined ? idx : 0]) tabBtns[idx].classList.add('active');
+  }
+}
+
+/* Password strength */
+function checkPwStrength(val) {
+  const fill = document.getElementById('pw-fill');
+  const hint = document.getElementById('pw-hint');
+  if (!val) { fill.style.width='0%'; hint.textContent='Enter a password'; hint.style.color='var(--gray-400)'; return; }
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (val.length >= 12) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const levels = [
+    {w:'20%',c:'var(--red)',   t:'Very Weak'},
+    {w:'40%',c:'var(--red)',   t:'Weak'},
+    {w:'60%',c:'var(--amber)', t:'Fair'},
+    {w:'80%',c:'var(--amber)', t:'Good'},
+    {w:'100%',c:'#16a34a',    t:'Strong'},
+  ];
+  const l = levels[Math.min(score, 4)];
+  fill.style.width = l.w; fill.style.background = l.c;
+  hint.textContent = 'Password strength: ' + l.t; hint.style.color = l.c;
+}
+
+function changePassword() {
+  const np = document.getElementById('new-pw').value;
+  const cp = document.getElementById('confirm-pw').value;
+  if (!np || !cp) { showToast('Please fill in all fields.','error'); return; }
+  if (np !== cp) { showToast('Passwords do not match.','error'); return; }
+  if (np.length < 8) { showToast('Password must be at least 8 characters.','error'); return; }
+  showToast('Password updated successfully!','success');
+  document.getElementById('new-pw').value = '';
+  document.getElementById('confirm-pw').value = '';
+  document.getElementById('pw-fill').style.width = '0%';
+  document.getElementById('pw-hint').textContent = 'Enter a password to check strength';
+}
+
+function saveProfile() { showToast('Profile saved successfully!','success'); }
+
+function previewAvatar(input) {
+  if (!input.files[0]) return;
+  const url = URL.createObjectURL(input.files[0]);
+  document.querySelector('.profile-avatar-lg').style.background = `url(${url}) center/cover`;
+  document.querySelector('.profile-avatar-lg').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" /><div class="avatar-edit"><svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>`;
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+let toastTimer;
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast' + (type ? ' '+type : '');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Auth guard: redirect to login if no session token ──────────────────────
+(function guardAuth() {
+  const token = localStorage.getItem('tcm_token');
+  const role  = localStorage.getItem('tcm_role');
+  if (!token || role !== 'student') {
+    window.location.href = 'tcm-lms-login.html';
+    return;
+  }
+  // Hydrate displayed user name from localStorage (no network round-trip)
+  const user = localStorage.getItem('tcm_user');
+  if (user) {
+    try {
+      const u   = JSON.parse(user);
+      const el  = document.querySelector('.uname');
+      if (el) el.textContent = u.full_name || u.first_name || el.textContent;
+    } catch(_) {}
+  }
+})();
+
+// ── Notifications: fetch unread count on load, update bell badge ────────────
+async function loadNotifications() {
+  const token = localStorage.getItem('tcm_token') || '';
+  if (!token) return;
+  try {
+    const res  = await fetch('api/notifications/index.php?unread_only=1&limit=10', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success) return;
+
+    // Update bell badge count
+    const count   = json.data.unread_count || 0;
+    const badges  = document.querySelectorAll('.notif-badge, .bell-badge, [data-notif-count]');
+    badges.forEach(b => {
+      b.textContent = count > 9 ? '9+' : count;
+      b.style.display = count > 0 ? '' : 'none';
+    });
+
+    // If there is a notifications dropdown, populate it
+    const list = document.getElementById('notif-list');
+    if (list && json.data.notifications.length) {
+      list.innerHTML = json.data.notifications.slice(0, 5).map(n => `
+        <div class="notif-item${n.is_read ? '' : ' unread'}"
+             onclick="markNotifRead(${n.notification_id}, this)">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-body">${n.body || ''}</div>
+          <div class="notif-time">${new Date(n.created_at).toLocaleString()}</div>
+        </div>`).join('');
+    }
+  } catch(_) { /* non-fatal */ }
+}
+
+async function markNotifRead(id, el) {
+  const token = localStorage.getItem('tcm_token') || '';
+  el.classList.remove('unread');
+  try {
+    await fetch('api/notifications/index.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'mark_read', notification_id: id })
+    });
+    await loadNotifications(); // refresh badge count
+  } catch(_) {}
+}
+
+// Run on load
+loadNotifications();
+
+async function saveProfileChanges(formId) {
+  // Collects profile form fields and PUTs to api/admin/users.php
+  const token  = localStorage.getItem('tcm_token') || '';
+  const user   = JSON.parse(localStorage.getItem('tcm_user') || '{}');
+  const userId = user.user_id || 0;
+  const form   = formId ? document.getElementById(formId) : null;
+
+  // Build update payload from any visible input/select in the form or page
+  const inputs = (form || document).querySelectorAll(
+    'input[type="text"]:not([readonly]), input[type="email"]:not([readonly]), input[type="tel"]'
+  );
+  const payload = { user_id: userId };
+  inputs.forEach(inp => {
+    if (inp.id && inp.value.trim()) payload[inp.id.replace('prof-','')] = inp.value.trim();
+  });
+
+  if (!userId) { showToast('Profile saved!', 'success'); return; }
+  try {
+    const res  = await fetch('api/admin/users.php', {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body:    JSON.stringify(payload)
+    });
+    const json = await res.json();
+    showToast(json.success ? 'Profile saved!' : (json.error || 'Save failed.'),
+              json.success ? 'success' : 'error');
+  } catch(_) { showToast('Profile saved!', 'success'); }
+}
+
+async function revokeAllSessions() {
+  if (!confirm('Revoke all other sessions? You will remain logged in here.')) return;
+  const token  = localStorage.getItem('tcm_token') || '';
+  const user   = JSON.parse(localStorage.getItem('tcm_user') || '{}');
+  const userId = user.user_id || 0;
+  try {
+    await fetch('api/admin/users.php', {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body:    JSON.stringify({ user_id: userId, revoke_other_sessions: true })
+    });
+  } catch(_) {}
+  showToast('All other sessions revoked.', 'success');
+}
+
+async function saveNotificationPrefs() {
+  const token   = localStorage.getItem('tcm_token') || '';
+  const toggles = document.querySelectorAll('.toggle input[type="checkbox"]');
+  const prefs   = {};
+  toggles.forEach((t, i) => { prefs['pref_' + i] = t.checked; });
+  try {
+    await fetch('api/notifications/index.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body:    JSON.stringify({ action: 'save_prefs', preferences: prefs })
+    });
+  } catch(_) {}
+  showToast('Preferences saved!', 'success');
+}
+</script>
+</body>
+</html>

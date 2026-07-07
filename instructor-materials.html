@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TCM LMS — Instructor Materials</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green-900:#0f2d16;--green-800:#163d1f;--green-700:#1e5429;--green-600:#276934;
+  --green-500:#2f7d3c;--green-400:#3a9649;--green-200:#93d3a0;--green-100:#c8ecce;--green-50:#eaf5ec;
+  --white:#fff;--gray-50:#f8faf8;--gray-100:#f0f4f1;--gray-200:#dde6de;
+  --gray-300:#c4d0c6;--gray-400:#8fa894;--gray-600:#4d6652;--gray-700:#374d3b;--gray-800:#1e2e21;
+  --red:#dc3545;--red-light:#fdecea;--blue:#1a6bb5;--blue-light:#e8f1fb;
+  --amber:#b45309;--amber-light:#fef3c7;--purple:#6d28d9;--purple-light:#ede9fe;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--sidebar-w:240px;--header-h:60px;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);}
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--header-h) 1fr;min-height:100vh;}
+.topbar{grid-column:1/-1;background:var(--green-900);display:flex;align-items:center;padding:0 1.25rem 0 0;border-bottom:1px solid var(--green-800);position:sticky;top:0;z-index:50;}
+.topbar-brand{width:var(--sidebar-w);flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 1.25rem;border-right:1px solid rgba(255,255,255,0.07);height:100%;}
+.brand-logo{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);flex-shrink:0;}
+.brand-name{font-size:13px;font-weight:600;color:#fff;line-height:1.2;}.brand-sub{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.topbar-spacer{flex:1;}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);padding:5px 10px 5px 6px;cursor:pointer;margin-left:8px;}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:var(--green-400);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.uname{font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.85);}.urole{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.sidebar{background:var(--white);border-right:1px solid var(--gray-200);padding:1rem 0;overflow-y:auto;display:flex;flex-direction:column;}
+.nav-section{padding:0 0.75rem;margin-bottom:0.25rem;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);padding:0.5rem 0.5rem 0.35rem;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;text-decoration:none;color:var(--gray-600);font-size:13.5px;transition:background 0.13s,color 0.13s;position:relative;}
+.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.nav-item:hover{background:var(--green-50);color:var(--green-700);}
+.nav-item.active{background:var(--green-50);color:var(--green-700);font-weight:500;}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;border-radius:0 3px 3px 0;background:var(--green-500);}
+.sidebar-bottom{margin-top:auto;padding:0.75rem;border-top:1px solid var(--gray-200);}
+.main{overflow-y:auto;background:var(--gray-50);}
+.page-header{padding:1.25rem 1.75rem 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.page-header h1{font-size:1.25rem;font-weight:600;color:var(--gray-800);letter-spacing:-0.01em;}
+.page-header p{font-size:13px;color:var(--gray-400);margin-top:2px;}
+.page-body{padding:1.25rem 1.75rem;}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem;}
+.stat-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1rem 1.1rem;display:flex;align-items:flex-start;gap:12px;}
+.stat-icon{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.stat-icon.green{background:var(--green-50);color:var(--green-600);}
+.stat-icon.blue{background:var(--blue-light);color:var(--blue);}
+.stat-icon.amber{background:var(--amber-light);color:var(--amber);}
+.stat-icon.red{background:var(--red-light);color:var(--red);}
+.stat-val{font-size:1.5rem;font-weight:600;color:var(--gray-800);line-height:1;}
+.stat-label{font-size:12px;color:var(--gray-400);margin-top:3px;}
+
+/* Class tabs */
+.class-tabs{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;}
+.class-tab{padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:1.5px solid var(--gray-200);background:var(--white);color:var(--gray-600);transition:all 0.13s;white-space:nowrap;}
+.class-tab:hover{border-color:var(--green-300);color:var(--green-700);}
+.class-tab.active{border-color:var(--green-500);background:var(--green-50);color:var(--green-700);}
+
+/* Upload zone */
+.upload-zone{border:2px dashed var(--gray-200);border-radius:var(--radius-md);padding:2rem;text-align:center;background:var(--white);margin-bottom:1.25rem;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--green-400);background:var(--green-50);}
+.upload-zone svg{width:36px;height:36px;stroke:var(--gray-300);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin-bottom:10px;}
+.uz-title{font-size:14px;font-weight:500;color:var(--gray-700);margin-bottom:4px;}
+.uz-sub{font-size:12.5px;color:var(--gray-400);}
+
+/* Toolbar */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;}
+.search-bar{display:flex;align-items:center;gap:7px;background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:6px 11px;flex:1;min-width:200px;max-width:300px;}
+.search-bar svg{width:14px;height:14px;stroke:var(--gray-400);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.search-bar input{border:none;outline:none;font-size:13px;font-family:'Inter',sans-serif;color:var(--gray-800);background:none;width:100%;}
+.filter-select{padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:13px;outline:none;background:var(--white);color:var(--gray-800);}
+
+/* Cards */
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:12px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:600;color:var(--gray-800);}
+.card-sub{font-size:12px;color:var(--gray-400);margin-top:2px;}
+
+/* File grid */
+.mat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:1.5rem;}
+.mat-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1rem;display:flex;flex-direction:column;gap:8px;transition:border-color 0.15s,box-shadow 0.15s;position:relative;}
+.mat-card:hover{border-color:var(--green-200);box-shadow:0 2px 12px rgba(47,125,60,0.08);}
+.mat-card.selected{border-color:var(--green-500);background:var(--green-50);}
+.mat-select{position:absolute;top:10px;right:10px;width:16px;height:16px;accent-color:var(--green-500);cursor:pointer;}
+.mat-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mat-icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.ft-pdf{background:var(--red-light);color:var(--red);}
+.ft-pptx{background:var(--amber-light);color:var(--amber);}
+.ft-docx{background:var(--blue-light);color:var(--blue);}
+.ft-xlsx{background:#f0fdf4;color:#16a34a;}
+.ft-mp4{background:#fdf2f8;color:#be185d;}
+.ft-zip{background:var(--purple-light);color:var(--purple);}
+.ft-link{background:var(--gray-100);color:var(--gray-600);}
+.mat-name{font-size:13px;font-weight:500;color:var(--gray-800);line-height:1.3;}
+.mat-meta{font-size:11.5px;color:var(--gray-400);}
+.mat-footer{display:flex;align-items:center;justify-content:space-between;margin-top:2px;}
+.mat-size{font-size:11px;color:var(--gray-400);}
+.mat-actions{display:flex;gap:3px;}
+.action-btn{width:26px;height:26px;border-radius:var(--radius-sm);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.13s;}
+.action-btn:hover{background:var(--gray-100);}
+.action-btn svg{width:13px;height:13px;stroke:var(--gray-400);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.action-btn.danger:hover{background:var(--red-light);}
+.action-btn.danger:hover svg{stroke:var(--red);}
+
+/* Visibility badge */
+.vis-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:20px;font-size:10.5px;font-weight:500;}
+.vis-published{background:var(--green-50);color:var(--green-700);}
+.vis-draft{background:var(--gray-100);color:var(--gray-600);}
+.vis-scheduled{background:var(--amber-light);color:var(--amber);}
+
+/* Badges & btns */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:500;}
+.badge.green{background:var(--green-50);color:var(--green-700);}
+.badge.blue{background:var(--blue-light);color:var(--blue);}
+.badge.amber{background:var(--amber-light);color:#92400e;}
+.badge.gray{background:var(--gray-100);color:var(--gray-600);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;border:none;transition:background 0.15s,transform 0.1s;text-decoration:none;white-space:nowrap;}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:var(--green-600);color:#fff;}
+.btn-primary:hover{background:var(--green-700);}
+.btn-secondary{background:var(--white);color:var(--gray-700);border:1px solid var(--gray-200);}
+.btn-secondary:hover{background:var(--gray-50);}
+.btn-danger{background:var(--red-light);color:#b91c1c;}
+.btn-danger:hover{background:#fcd5d5;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+/* Bulk action bar */
+.bulk-bar{background:var(--green-900);border-radius:var(--radius-sm);padding:10px 16px;display:none;align-items:center;gap:12px;margin-bottom:12px;}
+.bulk-bar.show{display:flex;}
+.bulk-bar span{font-size:13px;color:#fff;flex:1;}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(10,31,15,0.45);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:560px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.18);animation:slideUp 0.2s ease;max-height:90vh;overflow-y:auto;}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:1;}
+.modal-title{font-size:15px;font-weight:600;color:var(--gray-800);}
+.modal-body{padding:1.5rem;}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--gray-200);display:flex;align-items:center;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:var(--white);}
+.form-group{margin-bottom:1rem;}
+.form-group label{display:block;font-size:12.5px;font-weight:500;color:var(--gray-600);margin-bottom:5px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13.5px;font-family:'Inter',sans-serif;color:var(--gray-800);background:var(--white);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green-400);box-shadow:0 0 0 3px rgba(47,125,60,0.10);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.upload-preview{background:var(--gray-50);border:1px dashed var(--gray-200);border-radius:var(--radius-sm);padding:1rem;text-align:center;cursor:pointer;transition:border-color 0.15s;}
+.upload-preview:hover{border-color:var(--green-400);background:var(--green-50);}
+.upload-preview svg{width:28px;height:28px;stroke:var(--gray-400);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin-bottom:6px;}
+
+/* Toast */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--gray-800);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;opacity:0;transform:translateY(8px);transition:opacity 0.25s,transform 0.25s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{background:var(--green-700);}
+.toast.error{background:#b91c1c;}
+
+/* Progress upload bar */
+.upload-progress{background:var(--gray-100);border-radius:20px;height:5px;overflow:hidden;margin-top:6px;display:none;}
+.upload-progress-fill{height:100%;border-radius:20px;background:var(--green-500);width:0%;transition:width 0.1s;}
+.upload-progress.show{display:block;}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+thead th{text-align:left;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--gray-400);padding:0 12px 10px;border-bottom:1px solid var(--gray-200);}
+tbody tr{transition:background 0.1s;}
+tbody tr:hover{background:var(--gray-50);}
+tbody td{padding:11px 12px;color:var(--gray-700);border-bottom:1px solid var(--gray-100);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-logo">TCM</div>
+    <div><div class="brand-name">TCM LMS</div><div class="brand-sub">The College of Maasin</div></div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="user-chip">
+    <div class="user-avatar">LS</div>
+    <div><div class="uname">Lourdes Siaton</div><div class="urole">Instructor</div></div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <a class="nav-item" href="instructor-dashboard.html">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </a>
+    <a class="nav-item" href="instructor-dashboard.html">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>My Classes
+    </a>
+    <a class="nav-item" href="instructor-dashboard.html">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Assignments
+    </a>
+    <a class="nav-item" href="instructor-dashboard.html">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Grading
+    </a>
+    <a class="nav-item" href="instructor-dashboard.html">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Attendance
+    </a>
+    <a class="nav-item" href="instructor-dashboard.html">
+      <svg viewBox="0 0 24 24"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>Class Ranking
+    </a>
+    <a class="nav-item active" href="instructor-materials.html">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Learning Materials
+    </a>
+    <a class="nav-item" href="instructor-profile.html">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile
+    </a>
+  </div>
+  <div class="sidebar-bottom">
+    <a class="nav-item" href="tcm-lms-login.html" onclick="event.preventDefault();(async()=>{const t=localStorage.getItem('tcm_token')||'';await fetch('api/auth/logout.php',{method:'POST',headers:{'Authorization':'Bearer '+t}}).catch(()=>{});localStorage.clear();window.location.href='tcm-lms-login.html';})()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h1>Learning Materials</h1>
+      <p>Upload and manage files for your classes — students can view and download published materials</p>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary" onclick="openModal('add-link-modal')">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Add Link
+      </button>
+      <button class="btn btn-primary" onclick="openModal('upload-modal')">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload File
+      </button>
+    </div>
+  </div>
+
+  <div class="page-body">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="stat-val">31</div><div class="stat-label">Total Files</div></div></div>
+      <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="stat-val">27</div><div class="stat-label">Published</div></div></div>
+      <div class="stat-card"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="stat-val">4</div><div class="stat-label">Drafts</div></div></div>
+      <div class="stat-card"><div class="stat-icon red"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div><div class="stat-val">218 MB</div><div class="stat-label">Total Size</div></div></div>
+    </div>
+
+    <!-- Class tabs -->
+    <div class="class-tabs" id="class-tabs">
+      <button class="class-tab active" onclick="selectClass(this,'all')">All Classes</button>
+      <button class="class-tab" onclick="selectClass(this,'it311')">IT311 Web Dev — 3-B</button>
+      <button class="class-tab" onclick="selectClass(this,'it314a')">IT314 Sys Analysis — 3-A</button>
+      <button class="class-tab" onclick="selectClass(this,'it314c')">IT314 Sys Analysis — 3-C</button>
+    </div>
+
+    <!-- Drag & drop quick upload -->
+    <div class="upload-zone" id="drop-zone"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="handleDrop(event)"
+      onclick="document.getElementById('quick-file').click()">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div class="uz-title">Drag &amp; drop files here for quick upload</div>
+      <div class="uz-sub">PDF, PPTX, DOCX, XLSX, MP4, ZIP · Max 50 MB · Files will be saved as drafts</div>
+      <input type="file" id="quick-file" multiple accept=".pdf,.pptx,.docx,.xlsx,.mp4,.zip" style="display:none" onchange="quickUpload(this)"/>
+      <div class="upload-progress" id="up-progress"><div class="upload-progress-fill" id="up-fill"></div></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input placeholder="Search files…" oninput="searchFiles(this.value)"/>
+      </div>
+      <select class="filter-select" onchange="filterVis(this.value)">
+        <option value="">All Status</option>
+        <option value="published">Published</option>
+        <option value="draft">Draft</option>
+        <option value="scheduled">Scheduled</option>
+      </select>
+      <select class="filter-select" onchange="filterFtype(this.value)">
+        <option value="">All Types</option>
+        <option value="pdf">PDF</option>
+        <option value="pptx">PowerPoint</option>
+        <option value="docx">Word</option>
+        <option value="xlsx">Excel</option>
+        <option value="mp4">Video</option>
+        <option value="link">Link</option>
+      </select>
+      <div id="bulk-count" style="font-size:13px;color:var(--gray-400);margin-left:auto;"></div>
+    </div>
+
+    <!-- Bulk action bar -->
+    <div class="bulk-bar" id="bulk-bar">
+      <span id="bulk-label">0 files selected</span>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25)" onclick="bulkPublish()">
+        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Publish Selected
+      </button>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25)" onclick="bulkUnpublish()">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>Unpublish
+      </button>
+      <button class="btn btn-sm btn-danger" onclick="bulkDelete()">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>Delete
+      </button>
+    </div>
+
+    <!-- IT311 Section -->
+    <div class="card-header" data-class="it311" style="margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--green-500)"></div>
+        <div class="card-title">IT311 — Web Systems &amp; Technologies</div>
+        <span class="badge green">12 files</span>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="openModal('upload-modal')">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add to this class
+      </button>
+    </div>
+    <div class="mat-grid" id="mat-grid">
+
+      <div class="mat-card" data-class="it311" data-type="pptx" data-vis="published">
+        <input type="checkbox" class="mat-select" onchange="toggleSelect(this)"/>
+        <div class="mat-icon ft-pptx"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div class="mat-name">Week 8 — JavaScript DOM Manipulation</div>
+        <div class="mat-meta">IT311 · Jun 25, 2026</div>
+        <div style="margin-top:2px"><span class="vis-badge vis-published">● Published</span></div>
+        <div class="mat-footer">
+          <span class="mat-size">3.2 MB</span>
+          <div class="mat-actions">
+            <button class="action-btn" title="Edit" onclick="openEditModal('Week 8 — JavaScript DOM Manipulation','pptx','it311')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="action-btn" title="Unpublish" onclick="togglePublish(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button class="action-btn danger" title="Delete" onclick="deleteFile(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mat-card" data-class="it311" data-type="pdf" data-vis="published">
+        <input type="checkbox" class="mat-select" onchange="toggleSelect(this)"/>
+        <div class="mat-icon ft-pdf"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="mat-name">Week 6 — Responsive Design Guide</div>
+        <div class="mat-meta">IT311 · Jun 10, 2026</div>
+        <div style="margin-top:2px"><span class="vis-badge vis-published">● Published</span></div>
+        <div class="mat-footer">
+          <span class="mat-size">1.8 MB</span>
+          <div class="mat-actions">
+            <button class="action-btn" onclick="openEditModal('Week 6 — Responsive Design Guide','pdf','it311')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="action-btn" onclick="togglePublish(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button class="action-btn danger" onclick="deleteFile(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mat-card" data-class="it311" data-type="pdf" data-vis="draft">
+        <input type="checkbox" class="mat-select" onchange="toggleSelect(this)"/>
+        <div class="mat-icon ft-pdf"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="mat-name">Week 9 — Final Project Guidelines</div>
+        <div class="mat-meta">IT311 · Jun 26, 2026</div>
+        <div style="margin-top:2px"><span class="vis-badge vis-draft">○ Draft</span></div>
+        <div class="mat-footer">
+          <span class="mat-size">540 KB</span>
+          <div class="mat-actions">
+            <button class="action-btn" onclick="openEditModal('Week 9 — Final Project Guidelines','pdf','it311')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="action-btn" onclick="publishFile(this)" title="Publish"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></button>
+            <button class="action-btn danger" onclick="deleteFile(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mat-card" data-class="it311" data-type="link" data-vis="published">
+        <input type="checkbox" class="mat-select" onchange="toggleSelect(this)"/>
+        <div class="mat-icon ft-link"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+        <div class="mat-name">MDN Web Docs — JavaScript Reference</div>
+        <div class="mat-meta">IT311 · Jun 1, 2026</div>
+        <div style="margin-top:2px"><span class="vis-badge vis-published">● Published</span></div>
+        <div class="mat-footer">
+          <span class="badge blue" style="font-size:10.5px">Link</span>
+          <div class="mat-actions">
+            <button class="action-btn" onclick="openMaterialLink(this)"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+            <button class="action-btn danger" onclick="deleteFile(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- IT314 3-A -->
+      <div class="mat-card" data-class="it314a" data-type="pptx" data-vis="published">
+        <input type="checkbox" class="mat-select" onchange="toggleSelect(this)"/>
+        <div class="mat-icon ft-pptx"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div class="mat-name">Week 7 — Use Case Diagrams</div>
+        <div class="mat-meta">IT314 3-A · Jun 20, 2026</div>
+        <div style="margin-top:2px"><span class="vis-badge vis-published">● Published</span></div>
+        <div class="mat-footer">
+          <span class="mat-size">5.1 MB</span>
+          <div class="mat-actions">
+            <button class="action-btn" onclick="openEditModal('Week 7 — Use Case Diagrams','pptx','it314a')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="action-btn" onclick="togglePublish(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button class="action-btn danger" onclick="deleteFile(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mat-card" data-class="it314a" data-type="docx" data-vis="scheduled">
+        <input type="checkbox" class="mat-select" onchange="toggleSelect(this)"/>
+        <div class="mat-icon ft-docx"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="mat-name">Project Proposal Template</div>
+        <div class="mat-meta">IT314 3-A · Jun 28, 2026</div>
+        <div style="margin-top:2px"><span class="vis-badge vis-scheduled">◷ Scheduled Jul 1</span></div>
+        <div class="mat-footer">
+          <span class="mat-size">78 KB</span>
+          <div class="mat-actions">
+            <button class="action-btn" onclick="openEditModal('Project Proposal Template','docx','it314a')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="action-btn danger" onclick="deleteFile(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- IT314 3-C -->
+      <div class="mat-card" data-class="it314c" data-type="pdf" data-vis="published">
+        <input type="checkbox" class="mat-select" onchange="toggleSelect(this)"/>
+        <div class="mat-icon ft-pdf"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="mat-name">System Development Life Cycle — Overview</div>
+        <div class="mat-meta">IT314 3-C · Jun 5, 2026</div>
+        <div style="margin-top:2px"><span class="vis-badge vis-published">● Published</span></div>
+        <div class="mat-footer">
+          <span class="mat-size">2.3 MB</span>
+          <div class="mat-actions">
+            <button class="action-btn" onclick="openEditModal('SDLC Overview','pdf','it314c')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="action-btn" onclick="togglePublish(this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button class="action-btn danger" onclick="deleteFile(this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end mat-grid -->
+  </div>
+</main>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="modal-overlay" id="upload-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Upload Learning Material</div><button class="btn" style="background:none;border:none;cursor:pointer;font-size:16px;" onclick="closeModal('upload-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="upload-preview" onclick="document.getElementById('modal-file').click()" id="upload-preview-area">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div id="upload-filename" style="font-size:13px;color:var(--gray-600);">Click to select file or drag here</div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">PDF, PPTX, DOCX, XLSX, MP4, ZIP · Max 50 MB</div>
+        <input type="file" id="modal-file" style="display:none" onchange="previewFile(this)"/>
+      </div>
+      <div style="height:12px;"></div>
+      <div class="form-group"><label>Title <span style="color:var(--red)">*</span></label><input type="text" id="mat-title" placeholder="e.g. Week 9 — Lecture Slides"/></div>
+      <div class="form-row">
+        <div class="form-group"><label>Class / Subject <span style="color:var(--red)">*</span></label>
+          <select id="mat-class">
+            <option value="it311">IT311 Web Dev — 3-B</option>
+            <option value="it314a">IT314 Sys Analysis — 3-A</option>
+            <option value="it314c">IT314 Sys Analysis — 3-C</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Category</label>
+          <select id="mat-cat">
+            <option>Lecture Slides</option>
+            <option>Reference Material</option>
+            <option>Activity Sheet</option>
+            <option>Supplemental Reading</option>
+            <option>Template</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Description (optional)</label><textarea rows="2" placeholder="Brief description for students…"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Visibility</label>
+          <select id="mat-vis">
+            <option value="published">Publish immediately</option>
+            <option value="draft">Save as draft</option>
+            <option value="scheduled">Schedule release</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Release Date (if scheduled)</label><input type="datetime-local" id="mat-date"/></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('upload-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="uploadFile()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload &amp; Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Edit Material</div><button class="btn" style="background:none;border:none;cursor:pointer;font-size:16px;" onclick="closeModal('edit-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Title</label><input type="text" id="edit-title"/></div>
+      <div class="form-row">
+        <div class="form-group"><label>Class</label>
+          <select id="edit-class">
+            <option value="it311">IT311 Web Dev — 3-B</option>
+            <option value="it314a">IT314 Sys Analysis — 3-A</option>
+            <option value="it314c">IT314 Sys Analysis — 3-C</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Visibility</label>
+          <select id="edit-vis">
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+            <option value="scheduled">Scheduled</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea rows="2" placeholder="Update description…"></textarea></div>
+      <div class="form-group"><label>Replace File (optional)</label><input type="file"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('edit-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD LINK MODAL -->
+<div class="modal-overlay" id="add-link-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Reference Link</div><button class="btn" style="background:none;border:none;cursor:pointer;font-size:16px;" onclick="closeModal('add-link-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Title <span style="color:var(--red)">*</span></label><input type="text" id="link-title" placeholder="e.g. W3Schools JavaScript Tutorial"/></div>
+      <div class="form-group"><label>URL <span style="color:var(--red)">*</span></label><input type="url" id="link-url" placeholder="https://…"/></div>
+      <div class="form-row">
+        <div class="form-group"><label>Class</label>
+          <select id="link-class">
+            <option value="it311">IT311 Web Dev — 3-B</option>
+            <option value="it314a">IT314 Sys Analysis — 3-A</option>
+            <option value="it314c">IT314 Sys Analysis — 3-C</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Visibility</label>
+          <select id="link-vis"><option value="published">Publish immediately</option><option value="draft">Draft</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Description (optional)</label><textarea rows="2" placeholder="What will students find here?"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('add-link-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addLink()">Add Link</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* Class filter */
+function selectClass(btn, cls) {
+  document.querySelectorAll('.class-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.mat-card').forEach(c => {
+    c.style.display = (cls === 'all' || c.dataset.class === cls) ? '' : 'none';
+  });
+}
+
+/* Visibility filter */
+function filterVis(v) {
+  document.querySelectorAll('.mat-card').forEach(c => {
+    c.style.display = (!v || c.dataset.vis === v) ? '' : 'none';
+  });
+}
+function filterFtype(v) {
+  document.querySelectorAll('.mat-card').forEach(c => {
+    c.style.display = (!v || c.dataset.type === v) ? '' : 'none';
+  });
+}
+function searchFiles(q) {
+  document.querySelectorAll('.mat-card').forEach(c => {
+    const name = c.querySelector('.mat-name')?.textContent.toLowerCase() || '';
+    c.style.display = name.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+/* Selection */
+let selected = new Set();
+function toggleSelect(cb) {
+  const card = cb.closest('.mat-card');
+  if (cb.checked) { selected.add(card); card.classList.add('selected'); }
+  else { selected.delete(card); card.classList.remove('selected'); }
+  updateBulkBar();
+}
+function updateBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  const lbl = document.getElementById('bulk-label');
+  const n = selected.size;
+  if (n > 0) { bar.classList.add('show'); lbl.textContent = n + ' file' + (n>1?'s':'') + ' selected'; }
+  else bar.classList.remove('show');
+}
+function bulkPublish() {
+  selected.forEach(c => {
+    const badge = c.querySelector('.vis-badge');
+    if (badge) { badge.className='vis-badge vis-published'; badge.textContent='● Published'; }
+    c.dataset.vis='published';
+    c.querySelector('.mat-select').checked=false;
+    c.classList.remove('selected');
+  });
+  selected.clear(); updateBulkBar();
+  showToast('Files published successfully!','success');
+}
+function bulkUnpublish() {
+  selected.forEach(c => {
+    const badge = c.querySelector('.vis-badge');
+    if (badge) { badge.className='vis-badge vis-draft'; badge.textContent='○ Draft'; }
+    c.dataset.vis='draft';
+    c.querySelector('.mat-select').checked=false;
+    c.classList.remove('selected');
+  });
+  selected.clear(); updateBulkBar();
+  showToast('Files moved to draft.');
+}
+function bulkDelete() {
+  if (!confirm('Delete ' + selected.size + ' file(s)? This cannot be undone.')) return;
+  selected.forEach(c => c.remove());
+  selected.clear(); updateBulkBar();
+  showToast('Files deleted.','error');
+}
+
+/* Per-card actions */
+function togglePublish(btn) {
+  const card = btn.closest('.mat-card');
+  const badge = card.querySelector('.vis-badge');
+  if (card.dataset.vis === 'published') {
+    card.dataset.vis = 'draft';
+    badge.className = 'vis-badge vis-draft'; badge.textContent = '○ Draft';
+    showToast('File moved to draft.');
+  } else {
+    card.dataset.vis = 'published';
+    badge.className = 'vis-badge vis-published'; badge.textContent = '● Published';
+    showToast('File published!','success');
+  }
+}
+function publishFile(btn) {
+  const card = btn.closest('.mat-card');
+  card.dataset.vis = 'published';
+  const badge = card.querySelector('.vis-badge');
+  badge.className = 'vis-badge vis-published'; badge.textContent = '● Published';
+  showToast('File published!','success');
+}
+function deleteFile(btn) {
+  if (!confirm('Delete this file? This cannot be undone.')) return;
+  btn.closest('.mat-card').remove();
+  showToast('File deleted.','error');
+}
+
+/* Quick upload (drop zone) */
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag');
+  Array.from(e.dataTransfer.files).forEach(f => addFileCard(f.name, formatBytes(f.size), 'all'));
+}
+function quickUpload(input) {
+  Array.from(input.files).forEach(f => addFileCard(f.name, formatBytes(f.size), 'it311'));
+}
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(0) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+function addFileCard(name, size, cls) {
+  const ext = name.split('.').pop().toLowerCase();
+  const ftMap = {pdf:'ft-pdf',pptx:'ft-pptx',docx:'ft-docx',xlsx:'ft-xlsx',mp4:'ft-mp4',zip:'ft-zip'};
+  const ftCls = ftMap[ext] || 'ft-link';
+  const card = document.createElement('div');
+  card.className = 'mat-card'; card.dataset.class = cls; card.dataset.type = ext; card.dataset.vis = 'draft';
+  card.innerHTML = `
+    <input type="checkbox" class="mat-select" onchange="toggleSelect(this)"/>
+    <div class="mat-icon ${ftCls}"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+    <div class="mat-name">${name}</div>
+    <div class="mat-meta">Just uploaded</div>
+    <div style="margin-top:2px"><span class="vis-badge vis-draft">○ Draft</span></div>
+    <div class="mat-footer"><span class="mat-size">${size}</span>
+      <div class="mat-actions">
+        <button class="action-btn" onclick="publishFile(this)" title="Publish"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></button>
+        <button class="action-btn danger" onclick="deleteFile(this)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      </div>
+    </div>`;
+  document.getElementById('mat-grid').prepend(card);
+  showToast(name + ' uploaded as draft.', 'success');
+}
+
+/* Upload modal */
+function previewFile(input) {
+  if (input.files[0]) {
+    document.getElementById('upload-filename').textContent = input.files[0].name + ' (' + formatBytes(input.files[0].size) + ')';
+    document.getElementById('mat-title').value = input.files[0].name.replace(/\.[^.]+$/,'');
+  }
+}
+function uploadFile() {
+  const title = document.getElementById('mat-title').value.trim();
+  const cls   = document.getElementById('mat-class').value;
+  const vis   = document.getElementById('mat-vis').value;
+  if (!title) { showToast('Please enter a title.','error'); return; }
+  addFileCard(title + '.pdf', '—', cls);
+  if (vis === 'published') {
+    const card = document.getElementById('mat-grid').firstChild;
+    publishFile(card.querySelector('.action-btn'));
+  }
+  closeModal('upload-modal');
+  document.getElementById('mat-title').value = '';
+  document.getElementById('upload-filename').textContent = 'Click to select file or drag here';
+}
+
+/* Edit modal */
+function openEditModal(name, type, cls) {
+  document.getElementById('edit-title').value = name;
+  document.getElementById('edit-class').value = cls;
+  openModal('edit-modal');
+}
+function saveEdit() { closeModal('edit-modal'); showToast('Changes saved!','success'); }
+
+/* Add link */
+function addLink() {
+  const title = document.getElementById('link-title').value.trim();
+  const url   = document.getElementById('link-url').value.trim();
+  const cls   = document.getElementById('link-class').value;
+  const vis   = document.getElementById('link-vis').value;
+  if (!title || !url) { showToast('Please fill in required fields.','error'); return; }
+  const card = document.createElement('div');
+  card.className = 'mat-card'; card.dataset.class = cls; card.dataset.type = 'link'; card.dataset.vis = vis;
+  card.innerHTML = `
+    <input type="checkbox" class="mat-select" onchange="toggleSelect(this)"/>
+    <div class="mat-icon ft-link"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+    <div class="mat-name">${title}</div>
+    <div class="mat-meta">External link · Just added</div>
+    <div style="margin-top:2px"><span class="vis-badge ${vis==='published'?'vis-published':'vis-draft'}">${vis==='published'?'● Published':'○ Draft'}</span></div>
+    <div class="mat-footer"><span class="badge blue" style="font-size:10.5px">Link</span>
+      <div class="mat-actions">
+        <button class="action-btn danger" onclick="deleteFile(this)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      </div>
+    </div>`;
+  document.getElementById('mat-grid').prepend(card);
+  closeModal('add-link-modal');
+  document.getElementById('link-title').value=''; document.getElementById('link-url').value='';
+  showToast('Link added!','success');
+}
+
+/* Modals */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+/* Toast */
+let toastTimer;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(type?' '+type:'');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// ── Auth guard: redirect to login if no session token ──────────────────────
+(function guardAuth() {
+  const token = localStorage.getItem('tcm_token');
+  const role  = localStorage.getItem('tcm_role');
+  if (!token || role !== 'instructor') {
+    window.location.href = 'tcm-lms-login.html';
+    return;
+  }
+  // Hydrate displayed user name from localStorage (no network round-trip)
+  const user = localStorage.getItem('tcm_user');
+  if (user) {
+    try {
+      const u   = JSON.parse(user);
+      const el  = document.querySelector('.uname');
+      if (el) el.textContent = u.full_name || u.first_name || el.textContent;
+    } catch(_) {}
+  }
+})();
+
+// ── Notifications: fetch unread count on load, update bell badge ────────────
+async function loadNotifications() {
+  const token = localStorage.getItem('tcm_token') || '';
+  if (!token) return;
+  try {
+    const res  = await fetch('api/notifications/index.php?unread_only=1&limit=10', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success) return;
+
+    // Update bell badge count
+    const count   = json.data.unread_count || 0;
+    const badges  = document.querySelectorAll('.notif-badge, .bell-badge, [data-notif-count]');
+    badges.forEach(b => {
+      b.textContent = count > 9 ? '9+' : count;
+      b.style.display = count > 0 ? '' : 'none';
+    });
+
+    // If there is a notifications dropdown, populate it
+    const list = document.getElementById('notif-list');
+    if (list && json.data.notifications.length) {
+      list.innerHTML = json.data.notifications.slice(0, 5).map(n => `
+        <div class="notif-item${n.is_read ? '' : ' unread'}"
+             onclick="markNotifRead(${n.notification_id}, this)">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-body">${n.body || ''}</div>
+          <div class="notif-time">${new Date(n.created_at).toLocaleString()}</div>
+        </div>`).join('');
+    }
+  } catch(_) { /* non-fatal */ }
+}
+
+async function markNotifRead(id, el) {
+  const token = localStorage.getItem('tcm_token') || '';
+  el.classList.remove('unread');
+  try {
+    await fetch('api/notifications/index.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'mark_read', notification_id: id })
+    });
+    await loadNotifications(); // refresh badge count
+  } catch(_) {}
+}
+
+// Run on load
+loadNotifications();
+</script>
+</body>
+</html>

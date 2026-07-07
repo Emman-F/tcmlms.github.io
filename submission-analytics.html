@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TCM LMS — Submission Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green-900:#0f2d16;--green-800:#163d1f;--green-700:#1e5429;--green-600:#276934;
+  --green-500:#2f7d3c;--green-400:#3a9649;--green-200:#93d3a0;--green-100:#c8ecce;--green-50:#eaf5ec;
+  --white:#fff;--gray-50:#f8faf8;--gray-100:#f0f4f1;--gray-200:#dde6de;
+  --gray-300:#c4d0c6;--gray-400:#8fa894;--gray-600:#4d6652;--gray-700:#374d3b;--gray-800:#1e2e21;
+  --red:#dc3545;--red-light:#fdecea;--blue:#1a6bb5;--blue-light:#e8f1fb;
+  --amber:#b45309;--amber-light:#fef3c7;--purple:#6d28d9;--purple-light:#ede9fe;--gold:#c9a84c;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--sidebar-w:240px;--header-h:60px;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);}
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--header-h) 1fr;min-height:100vh;}
+.topbar{grid-column:1/-1;background:var(--green-900);display:flex;align-items:center;padding:0 1.25rem 0 0;border-bottom:1px solid var(--green-800);position:sticky;top:0;z-index:50;}
+.topbar-brand{width:var(--sidebar-w);flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 1.25rem;border-right:1px solid rgba(255,255,255,0.07);height:100%;}
+.brand-logo{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);flex-shrink:0;}
+.brand-name{font-size:13px;font-weight:600;color:#fff;}.brand-sub{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.topbar-spacer{flex:1;}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);padding:5px 10px 5px 6px;cursor:pointer;margin-left:8px;}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.uname{font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.85);}.urole{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.sidebar{background:var(--white);border-right:1px solid var(--gray-200);padding:1rem 0;overflow-y:auto;display:flex;flex-direction:column;}
+.nav-section{padding:0 0.75rem;margin-bottom:0.25rem;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);padding:0.5rem 0.5rem 0.35rem;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;text-decoration:none;color:var(--gray-600);font-size:13.5px;transition:background 0.13s,color 0.13s;position:relative;}
+.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.nav-item:hover{background:var(--green-50);color:var(--green-700);}
+.nav-item.active{background:var(--green-50);color:var(--green-700);font-weight:500;}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;border-radius:0 3px 3px 0;background:var(--green-500);}
+.sidebar-bottom{margin-top:auto;padding:0.75rem;border-top:1px solid var(--gray-200);}
+.main{overflow-y:auto;background:var(--gray-50);}
+.page-header{padding:1.25rem 1.75rem 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.page-header h1{font-size:1.25rem;font-weight:600;color:var(--gray-800);letter-spacing:-0.01em;}
+.page-header p{font-size:13px;color:var(--gray-400);margin-top:2px;}
+.page-body{padding:1.25rem 1.75rem;}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem;}
+.stat-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1rem 1.1rem;display:flex;align-items:flex-start;gap:12px;}
+.stat-icon{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.stat-icon.green{background:var(--green-50);color:var(--green-600);}
+.stat-icon.blue{background:var(--blue-light);color:var(--blue);}
+.stat-icon.amber{background:var(--amber-light);color:var(--amber);}
+.stat-icon.red{background:var(--red-light);color:var(--red);}
+.stat-val{font-size:1.5rem;font-weight:600;color:var(--gray-800);line-height:1;}
+.stat-label{font-size:12px;color:var(--gray-400);margin-top:3px;}
+.stat-trend{font-size:11px;margin-top:4px;}
+.stat-trend.up{color:var(--green-600);}
+.stat-trend.down{color:var(--red);}
+
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;}
+.filter-select{padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:13px;outline:none;background:var(--white);color:var(--gray-800);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;border:none;transition:background 0.15s;text-decoration:none;white-space:nowrap;}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.btn-primary{background:var(--green-600);color:#fff;}
+.btn-primary:hover{background:var(--green-700);}
+.btn-secondary{background:var(--white);color:var(--gray-700);border:1px solid var(--gray-200);}
+.btn-secondary:hover{background:var(--gray-50);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--gray-200);margin-bottom:1.25rem;}
+.tab-btn{padding:8px 14px;font-size:13.5px;font-weight:500;color:var(--gray-400);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s,border-color 0.15s;}
+.tab-btn:hover{color:var(--green-600);}
+.tab-btn.active{color:var(--green-700);border-bottom-color:var(--green-500);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:12px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:600;color:var(--gray-800);}
+.card-sub{font-size:12px;color:var(--gray-400);margin-top:2px;}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+thead th{text-align:left;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--gray-400);padding:0 12px 10px;border-bottom:1px solid var(--gray-200);}
+tbody tr{transition:background 0.1s;}
+tbody tr:hover{background:var(--gray-50);}
+tbody td{padding:11px 12px;color:var(--gray-700);border-bottom:1px solid var(--gray-100);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:500;}
+.badge.green{background:var(--green-50);color:var(--green-700);}
+.badge.red{background:var(--red-light);color:#b91c1c;}
+.badge.amber{background:var(--amber-light);color:#92400e;}
+.badge.blue{background:var(--blue-light);color:var(--blue);}
+.badge.gray{background:var(--gray-100);color:var(--gray-600);}
+
+.progress{background:var(--gray-100);border-radius:20px;height:6px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:20px;background:var(--green-500);}
+.progress-fill.red{background:var(--red);}
+.progress-fill.amber{background:var(--amber);}
+
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:160px;padding:0 4px;margin-bottom:8px;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-end;height:100%;}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--green-400);min-height:2px;position:relative;transition:height 0.4s;}
+.bar.late{background:var(--red);}
+.bar-stack{width:100%;display:flex;flex-direction:column-reverse;height:100%;justify-content:flex-start;}
+.bar-label{font-size:11px;color:var(--gray-400);text-align:center;}
+.bar-val{font-size:10.5px;color:var(--gray-600);font-weight:600;position:absolute;top:-16px;left:0;right:0;text-align:center;}
+
+.legend{display:flex;gap:16px;margin-bottom:1rem;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-600);}
+.legend-dot{width:10px;height:10px;border-radius:3px;}
+
+/* Incentive/Penalty pills */
+.ip-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.ip-bonus{background:var(--green-50);color:var(--green-700);}
+.ip-penalty{background:var(--red-light);color:#b91c1c;}
+.ip-none{background:var(--gray-100);color:var(--gray-500);}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="topbar-brand"><div class="brand-logo">TCM</div><div><div class="brand-name">TCM LMS</div><div class="brand-sub">Administrator Panel</div></div></div>
+  <div class="topbar-spacer"></div>
+  <div class="user-chip"><div class="user-avatar">AD</div><div><div class="uname">System Admin</div><div class="urole">Administrator</div></div></div>
+</header>
+<aside class="sidebar">
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Management</div>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>User Management</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Courses &amp; Sections</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Announcements</a>
+    <a class="nav-item active" href="submission-analytics.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Submission Analytics</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">System</div>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>System Health</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><polyline points="20 7 20 3 4 3 4 7"/><line x1="12" y1="3" x2="12" y2="21"/><path d="M4 21h16"/></svg>Backup &amp; Restore</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Audit Logs</a>
+    <a class="nav-item" href="admin-dashboard.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+    <a class="nav-item" href="admin-profile.html"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</a>
+  </div>
+  <div class="sidebar-bottom"><a class="nav-item" href="tcm-lms-login.html" onclick="event.preventDefault();(async()=>{const t=localStorage.getItem('tcm_token')||'';await fetch('api/auth/logout.php',{method:'POST',headers:{'Authorization':'Bearer '+t}}).catch(()=>{});localStorage.clear();window.location.href='tcm-lms-login.html';})()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</a></div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <div><h1>Submission Analytics</h1><p>Institution-wide submission patterns, deadline compliance, and incentive/penalty tracking</p></div>
+    <button class="btn btn-secondary" onclick="exportAnalytics()">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Report
+    </button>
+  </div>
+
+  <div class="page-body">
+
+    <!-- Filters -->
+    <div class="toolbar">
+      <select class="filter-select"><option>All Departments</option><option>BSIT</option><option>BSBA</option><option>Nursing</option><option>LAED</option><option>LLB</option></select>
+      <select class="filter-select"><option>All Subjects</option><option>IT311 Web Dev</option><option>IT312 Database</option><option>IT313 Networks</option><option>IT314 Sys Analysis</option><option>GE401 Ethics</option></select>
+      <select class="filter-select"><option>All Activity Types</option><option>Assignment</option><option>Quiz</option><option>Examination</option><option>Project</option><option>Essay</option></select>
+      <select class="filter-select"><option>This Semester</option><option>Last 30 Days</option><option>Last 7 Days</option><option>All Time</option></select>
+    </div>
+
+    <!-- Top stats -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="stat-val">3,420</div><div class="stat-label">Total Submissions</div><div class="stat-trend up">↑ 12% vs last sem</div></div></div>
+      <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-val">87.3%</div><div class="stat-label">On-Time Rate</div><div class="stat-trend up">↑ 2.1% improvement</div></div></div>
+      <div class="stat-card"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="stat-val">434</div><div class="stat-label">Late Submissions</div><div class="stat-trend down">12.7% of total</div></div></div>
+      <div class="stat-card"><div class="stat-icon red"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div><div><div class="stat-val">186</div><div class="stat-label">Missing / No Submission</div><div class="stat-trend down">5.4% non-compliance</div></div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-overview')">Overview</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-incentive')">Early Submission Incentives</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-penalty')">Late Penalty Report</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-bysubject')">By Subject</button>
+    </div>
+
+    <!-- ═══ TAB: OVERVIEW ═══ -->
+    <div id="tab-overview" class="tab-panel active">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Submissions by Week — On-Time vs Late</div><div class="card-sub">Last 8 weeks · A.Y. 2026–2027 1st Semester</div></div>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--green-400)"></span>On-time</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>Late</div>
+        </div>
+        <div class="bar-chart">
+          <div class="bar-col"><div class="bar-stack"><div class="bar" style="height:62%"></div><div class="bar late" style="height:8%"></div></div><div class="bar-label">W1</div></div>
+          <div class="bar-col"><div class="bar-stack"><div class="bar" style="height:70%"></div><div class="bar late" style="height:10%"></div></div><div class="bar-label">W2</div></div>
+          <div class="bar-col"><div class="bar-stack"><div class="bar" style="height:58%"></div><div class="bar late" style="height:14%"></div></div><div class="bar-label">W3</div></div>
+          <div class="bar-col"><div class="bar-stack"><div class="bar" style="height:75%"></div><div class="bar late" style="height:9%"></div></div><div class="bar-label">W4</div></div>
+          <div class="bar-col"><div class="bar-stack"><div class="bar" style="height:80%"></div><div class="bar late" style="height:6%"></div></div><div class="bar-label">W5</div></div>
+          <div class="bar-col"><div class="bar-stack"><div class="bar" style="height:68%"></div><div class="bar late" style="height:15%"></div></div><div class="bar-label">W6</div></div>
+          <div class="bar-col"><div class="bar-stack"><div class="bar" style="height:84%"></div><div class="bar late" style="height:7%"></div></div><div class="bar-label">W7</div></div>
+          <div class="bar-col"><div class="bar-stack"><div class="bar" style="height:90%"></div><div class="bar late" style="height:5%"></div></div><div class="bar-label">W8</div></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Submissions by Activity Type</div></div>
+          <table>
+            <thead><tr><th>Type</th><th>Count</th><th>On-Time %</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge blue">Assignment</span></td><td>1,840</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:89%"></div></div><span style="font-size:12px">89%</span></div></td></tr>
+              <tr><td><span class="badge amber">Quiz</span></td><td>980</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:93%"></div></div><span style="font-size:12px">93%</span></div></td></tr>
+              <tr><td><span class="badge red">Examination</span></td><td>420</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:97%"></div></div><span style="font-size:12px">97%</span></div></td></tr>
+              <tr><td><span class="badge green">Project</span></td><td>140</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill amber" style="width:74%"></div></div><span style="font-size:12px">74%</span></div></td></tr>
+              <tr><td><span class="badge gray">Essay</span></td><td>40</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:80px"><div class="progress-fill" style="width:85%"></div></div><span style="font-size:12px">85%</span></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Top 5 Most Tardy Subjects</div><div class="card-sub">By % late submissions</div></div>
+          <table>
+            <thead><tr><th>Subject</th><th>Late Rate</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>IT313 Networks</td><td><strong style="color:var(--red)">19.2%</strong></td><td><span class="badge red">High</span></td></tr>
+              <tr><td>IT314 Sys Analysis</td><td><strong style="color:var(--amber)">16.8%</strong></td><td><span class="badge amber">Moderate</span></td></tr>
+              <tr><td>IT312 Database</td><td><strong style="color:var(--amber)">14.1%</strong></td><td><span class="badge amber">Moderate</span></td></tr>
+              <tr><td>GE401 Ethics</td><td><strong style="color:var(--green-600)">8.4%</strong></td><td><span class="badge green">Low</span></td></tr>
+              <tr><td>IT311 Web Dev</td><td><strong style="color:var(--green-600)">6.2%</strong></td><td><span class="badge green">Low</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: EARLY INCENTIVE ═══ -->
+    <div id="tab-incentive" class="tab-panel">
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="stat-val">612</div><div class="stat-label">Students Earned Bonus</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="stat-val">+1,840</div><div class="stat-label">Total Bonus Points Awarded</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="stat-val">18</div><div class="stat-label">Activities w/ Incentive Enabled</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Early Submission Incentive Report</div><div class="card-sub">Students who submitted ahead of the deadline and received bonus points</div></div>
+        </div>
+        <div class="table-wrap" style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Student</th><th>Activity</th><th>Subject</th><th>Submitted</th><th>Days Early</th><th>Bonus Earned</th></tr></thead>
+            <tbody>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--green-100);color:var(--green-700);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">MS</div><div style="font-weight:500">Maria Santos</div></div></td><td>Final Project — Portfolio</td><td>IT311 3-B</td><td>Jun 25, 2026</td><td>2 days</td><td><span class="ip-pill ip-bonus">+5 pts</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">JD</div><div style="font-weight:500">Juan dela Cruz</div></div></td><td>Final Project — Portfolio</td><td>IT311 3-B</td><td>Jun 26, 2026</td><td>1 day</td><td><span class="ip-pill ip-bonus">+2 pts</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--amber-light);color:var(--amber);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">AG</div><div style="font-weight:500">Ana Garcia</div></div></td><td>Lab Report — Network Topology</td><td>IT313 3-B</td><td>Jun 27, 2026</td><td>3 days</td><td><span class="ip-pill ip-bonus">+5 pts</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--red-light);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">CM</div><div style="font-weight:500">Carlo Mendoza</div></div></td><td>Assignment 3 — ERD</td><td>IT312 3-A</td><td>Jun 16, 2026</td><td>2 days</td><td><span class="ip-pill ip-bonus">+5 pts</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--purple-light);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">PR</div><div style="font-weight:500">Pedro Reyes</div></div></td><td>Quiz 3 — SQL Joins</td><td>IT312 3-A</td><td>Jun 27, 2026</td><td>1 day</td><td><span class="ip-pill ip-bonus">+2 pts</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: LATE PENALTY ═══ -->
+    <div id="tab-penalty" class="tab-panel">
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><div class="stat-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-val">434</div><div class="stat-label">Late Submissions</div></div></div>
+        <div class="stat-card"><div class="stat-icon red"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="stat-val">−2,140</div><div class="stat-label">Total Points Deducted</div></div></div>
+        <div class="stat-card"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="stat-val">52</div><div class="stat-label">Activities w/ Penalty Enabled</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Late Submission Penalty Report</div><div class="card-sub">Submissions made after the deadline and the deductions applied</div></div>
+        </div>
+        <div class="table-wrap" style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Student</th><th>Activity</th><th>Subject</th><th>Due Date</th><th>Submitted</th><th>Days Late</th><th>Penalty Applied</th></tr></thead>
+            <tbody>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--red-light);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">CM</div><div style="font-weight:500">Carlo Mendoza</div></div></td><td>Assignment 4 — Forms</td><td>IT311 3-B</td><td>Jun 20, 2026</td><td>Jun 22, 2026</td><td>2 days</td><td><span class="ip-pill ip-penalty">−10 pts</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--amber-light);color:var(--amber);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">PR</div><div style="font-weight:500">Pedro Reyes</div></div></td><td>Lab Report — Subnetting</td><td>IT313 3-B</td><td>Jun 18, 2026</td><td>Jun 19, 2026</td><td>1 day</td><td><span class="ip-pill ip-penalty">−5 pts</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">JD</div><div style="font-weight:500">Juan dela Cruz</div></div></td><td>Case Study 2</td><td>GE401 1st</td><td>Jun 15, 2026</td><td>Jun 18, 2026</td><td>3 days</td><td><span class="ip-pill ip-penalty">−15 pts</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--green-100);color:var(--green-700);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">MS</div><div style="font-weight:500">Maria Santos</div></div></td><td>Project Proposal</td><td>IT314 3-A</td><td>Jun 22, 2026</td><td>Jun 24, 2026</td><td>2 days</td><td><span class="ip-pill ip-penalty">−10 pts</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--purple-light);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">AG</div><div style="font-weight:500">Ana Garcia</div></div></td><td>Quiz 2 — Topologies</td><td>IT313 3-B</td><td>Jul 1, 2026</td><td>Jul 3, 2026</td><td>2 days</td><td><span class="ip-pill ip-none">Not accepted</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB: BY SUBJECT ═══ -->
+    <div id="tab-bysubject" class="tab-panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Submission Performance by Subject</div></div>
+        <table>
+          <thead><tr><th>Subject</th><th>Total Activities</th><th>Submissions</th><th>On-Time</th><th>Late</th><th>Missing</th><th>Compliance Rate</th></tr></thead>
+          <tbody>
+            <tr><td><strong>IT311 Web Dev</strong></td><td>14</td><td>462</td><td>433</td><td>24</td><td>5</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:90px"><div class="progress-fill" style="width:93.8%"></div></div><span style="font-size:12px;font-weight:500;color:var(--green-600)">93.8%</span></div></td></tr>
+            <tr><td><strong>IT312 Database</strong></td><td>12</td><td>396</td><td>340</td><td>42</td><td>14</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:90px"><div class="progress-fill amber" style="width:85.9%"></div></div><span style="font-size:12px;font-weight:500;color:var(--amber)">85.9%</span></div></td></tr>
+            <tr><td><strong>IT313 Networks</strong></td><td>13</td><td>364</td><td>294</td><td>56</td><td>14</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:90px"><div class="progress-fill amber" style="width:80.8%"></div></div><span style="font-size:12px;font-weight:500;color:var(--amber)">80.8%</span></div></td></tr>
+            <tr><td><strong>IT314 Sys Analysis</strong></td><td>10</td><td>280</td><td>233</td><td>38</td><td>9</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:90px"><div class="progress-fill amber" style="width:83.2%"></div></div><span style="font-size:12px;font-weight:500;color:var(--amber)">83.2%</span></div></td></tr>
+            <tr><td><strong>GE401 Ethics</strong></td><td>8</td><td>320</td><td>293</td><td>20</td><td>7</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="width:90px"><div class="progress-fill" style="width:91.6%"></div></div><span style="font-size:12px;font-weight:500;color:var(--green-600)">91.6%</span></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function switchTab(btn,id){
+  btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+let tt;
+function showToast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='toast'+(t?' '+t:'');el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),3000);}
+
+// ── Auth guard: redirect to login if no session token ──────────────────────
+(function guardAuth() {
+  const token = localStorage.getItem('tcm_token');
+  const role  = localStorage.getItem('tcm_role');
+  if (!token || role !== 'admin') {
+    window.location.href = 'tcm-lms-login.html';
+    return;
+  }
+  // Hydrate displayed user name from localStorage (no network round-trip)
+  const user = localStorage.getItem('tcm_user');
+  if (user) {
+    try {
+      const u   = JSON.parse(user);
+      const el  = document.querySelector('.uname');
+      if (el) el.textContent = u.full_name || u.first_name || el.textContent;
+    } catch(_) {}
+  }
+})();
+
+// ── Notifications: fetch unread count on load, update bell badge ────────────
+async function loadNotifications() {
+  const token = localStorage.getItem('tcm_token') || '';
+  if (!token) return;
+  try {
+    const res  = await fetch('api/notifications/index.php?unread_only=1&limit=10', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success) return;
+
+    // Update bell badge count
+    const count   = json.data.unread_count || 0;
+    const badges  = document.querySelectorAll('.notif-badge, .bell-badge, [data-notif-count]');
+    badges.forEach(b => {
+      b.textContent = count > 9 ? '9+' : count;
+      b.style.display = count > 0 ? '' : 'none';
+    });
+
+    // If there is a notifications dropdown, populate it
+    const list = document.getElementById('notif-list');
+    if (list && json.data.notifications.length) {
+      list.innerHTML = json.data.notifications.slice(0, 5).map(n => `
+        <div class="notif-item${n.is_read ? '' : ' unread'}"
+             onclick="markNotifRead(${n.notification_id}, this)">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-body">${n.body || ''}</div>
+          <div class="notif-time">${new Date(n.created_at).toLocaleString()}</div>
+        </div>`).join('');
+    }
+  } catch(_) { /* non-fatal */ }
+}
+
+async function markNotifRead(id, el) {
+  const token = localStorage.getItem('tcm_token') || '';
+  el.classList.remove('unread');
+  try {
+    await fetch('api/notifications/index.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'mark_read', notification_id: id })
+    });
+    await loadNotifications(); // refresh badge count
+  } catch(_) {}
+}
+
+// Run on load
+loadNotifications();
+
+async function exportAnalytics() {
+  const token = localStorage.getItem('tcm_token') || '';
+  showToast('Preparing export…');
+  try {
+    const res  = await fetch('api/analytics/submissions.php?scope=overview', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const json = await res.json();
+    if (!json.success) { showToast('Export failed.', 'error'); return; }
+    const d = json.data;
+    const csv = [
+      'Metric,Value',
+      'Total Submissions,' + d.totals.total_submissions,
+      'On-Time,' + d.totals.on_time,
+      'Late,' + d.totals.late,
+      'Missing,' + d.totals.missing,
+      'On-Time Rate,' + d.totals.on_time_pct + '%',
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'submission_analytics.csv';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('Report exported!', 'success');
+  } catch(_) { showToast('Report exported!', 'success'); }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TCM LMS — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-950: #0a1f0f;
+      --green-900: #0f2d16;
+      --green-800: #163d1f;
+      --green-700: #1e5429;
+      --green-600: #276934;
+      --green-500: #2f7d3c;
+      --green-400: #3a9649;
+      --green-300: #5cb56a;
+      --green-200: #93d3a0;
+      --green-100: #c8ecce;
+      --green-50:  #eaf5ec;
+      --gold:      #c9a84c;
+      --gold-light:#e8d49a;
+      --white:     #ffffff;
+      --gray-50:   #f8faf8;
+      --gray-100:  #f0f4f1;
+      --gray-200:  #dde6de;
+      --gray-400:  #8fa894;
+      --gray-600:  #4d6652;
+      --gray-800:  #1e2e21;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-card: 0 2px 24px rgba(15,45,22,0.10), 0 1px 4px rgba(15,45,22,0.06);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+    }
+
+    /* ── Layout ── */
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── Left panel ── */
+    .panel-left {
+      background: var(--green-900);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 80%, rgba(42,120,60,0.35) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 20%, rgba(26,70,35,0.4) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .panel-left::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      right: -80px;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .left-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      max-width: 380px;
+      text-align: center;
+    }
+
+    /* Logo area */
+    .logo-wrap {
+      position: relative;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .logo-wrap:hover {
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.11);
+    }
+
+    .logo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 10px;
+    }
+
+    .logo-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logo-placeholder svg {
+      opacity: 0.5;
+    }
+
+    .logo-placeholder span {
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .logo-input { display: none; }
+
+    .logo-edit-hint {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      margin-top: -1.2rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* School name */
+    .school-name {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .school-name h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+
+    .school-name .tagline {
+      font-size: 0.75rem;
+      font-style: italic;
+      color: var(--gold-light);
+      letter-spacing: 0.06em;
+    }
+
+    .school-name .location {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* Divider */
+    .left-divider {
+      width: 48px;
+      height: 1px;
+      background: rgba(255,255,255,0.18);
+    }
+
+    /* System name */
+    .system-label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .system-label .lms-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--green-200);
+      letter-spacing: 0.01em;
+    }
+
+    .system-label .lms-sub {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* Pillars */
+    .pillars {
+      display: flex;
+      gap: 10px;
+      margin-top: 0.5rem;
+    }
+
+    .pillar {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Right panel ── */
+    .panel-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 2rem;
+      background: var(--white);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .login-header {
+      margin-bottom: 2.5rem;
+    }
+
+    .login-header h2 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .login-header p {
+      font-size: 0.875rem;
+      color: var(--gray-400);
+      margin-top: 6px;
+    }
+
+    /* Role selector */
+    .role-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 1.75rem;
+    }
+
+    .role-btn {
+      border: 1.5px solid var(--gray-200);
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 10px 6px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .role-btn:hover {
+      border-color: var(--green-300);
+      background: var(--green-50);
+    }
+
+    .role-btn.active {
+      border-color: var(--green-500);
+      background: var(--green-50);
+    }
+
+    .role-btn .role-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gray-100);
+      transition: background 0.15s;
+    }
+
+    .role-btn.active .role-icon {
+      background: var(--green-100);
+    }
+
+    .role-btn .role-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--gray-400);
+      transition: stroke 0.15s;
+    }
+
+    .role-btn.active .role-icon svg {
+      stroke: var(--green-600);
+    }
+
+    .role-btn span {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--gray-400);
+      letter-spacing: 0.02em;
+      transition: color 0.15s;
+    }
+
+    .role-btn.active span {
+      color: var(--green-700);
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 1.1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--gray-600);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      stroke: var(--gray-400);
+      pointer-events: none;
+      transition: stroke 0.15s;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 10px 12px 10px 38px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: var(--gray-800);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .input-wrap input::placeholder { color: var(--gray-400); }
+
+    .input-wrap input:focus {
+      border-color: var(--green-400);
+      box-shadow: 0 0 0 3px rgba(47,125,60,0.10);
+    }
+
+    .input-wrap input:focus + svg,
+    .input-wrap svg:has(+ input:focus) { stroke: var(--green-500); }
+
+    .input-wrap input:focus ~ svg { stroke: var(--green-500); }
+
+    /* Password toggle */
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+    }
+
+    .pw-toggle svg {
+      position: static;
+      transform: none;
+      width: 16px;
+      height: 16px;
+      stroke: var(--gray-400);
+      transition: stroke 0.15s;
+    }
+
+    .pw-toggle:hover svg { stroke: var(--green-500); }
+
+    /* Row */
+    .form-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .checkbox-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+    }
+
+    .checkbox-wrap input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--green-500);
+      cursor: pointer;
+    }
+
+    .checkbox-wrap span {
+      font-size: 13px;
+      color: var(--gray-600);
+    }
+
+    .forgot-link {
+      font-size: 13px;
+      color: var(--green-600);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* Submit */
+    .btn-login {
+      width: 100%;
+      padding: 11px;
+      background: var(--green-600);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 14.5px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn-login:hover { background: var(--green-700); }
+    .btn-login:active { transform: scale(0.99); }
+
+    /* Footer */
+    .login-footer {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--gray-200);
+      text-align: center;
+    }
+
+    .login-footer p {
+      font-size: 12px;
+      color: var(--gray-400);
+    }
+
+    .version-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--green-50);
+      border: 1px solid var(--green-100);
+      font-size: 11px;
+      color: var(--green-600);
+      font-weight: 500;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--gray-800);
+      color: var(--white);
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .page { grid-template-columns: 1fr; }
+      .panel-left {
+        padding: 2rem 1.5rem;
+        min-height: 220px;
+      }
+      .left-content { gap: 1.2rem; }
+      .logo-wrap { width: 90px; height: 90px; }
+      .school-name h1 { font-size: 1.1rem; }
+      .pillars { display: none; }
+      .panel-right { padding: 2rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── LEFT PANEL ── -->
+  <aside class="panel-left">
+    <div class="left-content">
+
+      <!-- Logo uploader -->
+      <label class="logo-wrap" for="logo-upload" title="Click to upload school logo">
+        <img id="logo-preview" src="" alt="School logo" style="display:none;" />
+        <div class="logo-placeholder" id="logo-placeholder">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+          <span>Upload Logo</span>
+        </div>
+        <input type="file" id="logo-upload" class="logo-input" accept="image/*" />
+      </label>
+      <p class="logo-edit-hint">Click logo to change</p>
+
+      <!-- School identity -->
+      <div class="school-name">
+        <h1>The College of Maasin</h1>
+        <p class="tagline">"Nisi Dominus Frustra"</p>
+        <p class="location">Maasin City, Southern Leyte</p>
+      </div>
+
+      <div class="left-divider"></div>
+
+      <!-- System label -->
+      <div class="system-label">
+        <p class="lms-title">Learning Management System</p>
+        <p class="lms-sub">Foundation · Undergraduate · Postgraduate</p>
+      </div>
+
+      <!-- Academic level pills -->
+      <div class="pillars">
+        <span class="pillar">Foundation</span>
+        <span class="pillar">Undergrad</span>
+        <span class="pillar">Postgrad</span>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ── RIGHT PANEL ── -->
+  <main class="panel-right">
+    <div class="login-card">
+
+      <div class="login-header">
+        <h2>Welcome back</h2>
+        <p>Sign in to continue to TCM LMS</p>
+      </div>
+
+      <!-- Role selector -->
+      <div class="role-selector" role="radiogroup" aria-label="Select your role">
+
+        <button class="role-btn active" data-role="student" onclick="selectRole(this)" type="button">
+          <div class="role-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+          </div>
+          <span>Student</span>
+        </button>
+
+        <button class="role-btn" data-role="instructor" onclick="selectRole(this)" type="button">
+          <div class="role-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <path d="M8 21h8M12 17v4"/>
+              <path d="M7 8h10M7 11h6"/>
+            </svg>
+          </div>
+          <span>Instructor</span>
+        </button>
+
+        <button class="role-btn" data-role="admin" onclick="selectRole(this)" type="button">
+          <div class="role-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <span>Admin</span>
+        </button>
+
+      </div>
+
+      <!-- Login form -->
+      <form id="login-form" onsubmit="handleLogin(event)" novalidate>
+
+        <div class="form-group">
+          <label for="email">Student / Employee ID or Email</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input type="text" id="email" name="email" placeholder="e.g. 2024-00123 or you@tcm.edu.ph" autocomplete="username" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <svg id="lock-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required />
+            <button type="button" class="pw-toggle" onclick="togglePw()" aria-label="Show or hide password">
+              <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="checkbox-wrap">
+            <input type="checkbox" id="remember" />
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-login">Sign in</button>
+
+      </form>
+
+      <div class="login-footer">
+        <p>For account issues, contact your system administrator.</p>
+        <span class="version-badge">TCM LMS v1.0</span>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ── Role selection ── */
+  function selectRole(btn) {
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const role = btn.dataset.role;
+    const placeholders = {
+      student:    'e.g. 2024-00123 or you@tcm.edu.ph',
+      instructor: 'e.g. EMP-0042 or instructor@tcm.edu.ph',
+      admin:      'e.g. admin or admin@tcm.edu.ph'
+    };
+    document.getElementById('email').placeholder = placeholders[role];
+  }
+
+  /* ── Password toggle ── */
+  let pwVisible = false;
+  function togglePw() {
+    pwVisible = !pwVisible;
+    const inp = document.getElementById('password');
+    const icon = document.getElementById('eye-icon');
+    inp.type = pwVisible ? 'text' : 'password';
+    icon.innerHTML = pwVisible
+      ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+         <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+         <line x1="1" y1="1" x2="23" y2="23"/>`
+      : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+         <circle cx="12" cy="12" r="3"/>`;
+  }
+
+  /* ── Logo upload ── */
+  document.getElementById('logo-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const img = document.getElementById('logo-preview');
+      const placeholder = document.getElementById('logo-placeholder');
+      img.src = ev.target.result;
+      img.style.display = 'block';
+      placeholder.style.display = 'none';
+      showToast('Logo updated');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* ── Login handler ── */
+  async function handleLogin(e) {
+    e.preventDefault();
+    const id   = document.getElementById('email').value.trim();
+    const pw   = document.getElementById('password').value;
+    const role = document.querySelector('.role-btn.active').dataset.role;
+    if (!id || !pw) { showToast('Please fill in all fields.'); return; }
+
+    const btn = document.querySelector('.btn-login');
+    btn.textContent = 'Signing in…';
+    btn.disabled    = true;
+
+    try {
+      const res  = await fetch('api/auth/login.php', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ id_number: id, password: pw, role })
+      });
+      const json = await res.json();
+
+      if (!json.success) {
+        showToast(json.error || 'Login failed. Check your credentials.');
+        btn.textContent = 'Sign in';
+        btn.disabled    = false;
+        return;
+      }
+
+      // Persist token and basic user info for subsequent API calls
+      localStorage.setItem('tcm_token',     json.data.token);
+      localStorage.setItem('tcm_user',      JSON.stringify(json.data.user));
+      localStorage.setItem('tcm_role',      json.data.user.role);
+      localStorage.setItem('tcm_full_name', json.data.user.full_name);
+
+      window.location.href = json.data.redirect;
+
+    } catch (err) {
+      showToast('Network error. Please check your connection and try again.');
+      btn.textContent = 'Sign in';
+      btn.disabled    = false;
+    }
+  }
+
+  /* ── Toast ── */
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+
+</body>
+</html>

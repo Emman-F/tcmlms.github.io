@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TCM LMS — Quiz / Exam</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green-900:#0f2d16;--green-800:#163d1f;--green-700:#1e5429;--green-600:#276934;
+  --green-500:#2f7d3c;--green-400:#3a9649;--green-200:#93d3a0;--green-100:#c8ecce;--green-50:#eaf5ec;
+  --white:#fff;--gray-50:#f8faf8;--gray-100:#f0f4f1;--gray-200:#dde6de;
+  --gray-300:#c4d0c6;--gray-400:#8fa894;--gray-600:#4d6652;--gray-700:#374d3b;--gray-800:#1e2e21;
+  --red:#dc3545;--red-light:#fdecea;--blue:#1a6bb5;--blue-light:#e8f1fb;
+  --amber:#b45309;--amber-light:#fef3c7;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);}
+
+/* ── Quiz list screen ── */
+#screen-list{display:block;}
+#screen-quiz{display:none;}
+#screen-result{display:none;}
+
+/* Topbar */
+.topbar{background:var(--green-900);display:flex;align-items:center;padding:0 1.5rem;height:60px;border-bottom:1px solid var(--green-800);position:sticky;top:0;z-index:50;gap:12px;}
+.topbar-brand{display:flex;align-items:center;gap:10px;}
+.brand-logo{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-logo span{font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);}
+.brand-name{font-size:13px;font-weight:600;color:#fff;}
+.brand-sub{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.topbar-spacer{flex:1;}
+.topbar-user{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);padding:5px 10px 5px 6px;}
+.user-av{width:26px;height:26px;border-radius:50%;background:var(--green-500);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
+.uname{font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.85);}
+.urole{font-size:10.5px;color:rgba(255,255,255,0.4);}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,0.7);font-size:13px;text-decoration:none;padding:6px 10px;border-radius:var(--radius-sm);transition:background 0.15s;}
+.back-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.back-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ── Page container ── */
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem;}
+
+/* ── Quiz list ── */
+.page-title{font-size:1.25rem;font-weight:600;color:var(--gray-800);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--gray-400);margin-bottom:1.5rem;}
+
+.filter-row{display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;}
+.filter-row select{padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:13px;outline:none;background:#fff;color:var(--gray-800);}
+.search-bar{display:flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:6px 11px;}
+.search-bar svg{width:14px;height:14px;stroke:var(--gray-400);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.search-bar input{border:none;outline:none;font-size:13px;font-family:'Inter',sans-serif;color:var(--gray-800);background:none;width:200px;}
+
+.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.quiz-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.25rem;display:flex;flex-direction:column;gap:10px;transition:border-color 0.15s,box-shadow 0.15s;}
+.quiz-card:hover{border-color:var(--green-200);box-shadow:0 2px 12px rgba(47,125,60,0.08);}
+.quiz-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.quiz-type-icon{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.quiz-type-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.quiz-title{font-size:14px;font-weight:600;color:var(--gray-800);line-height:1.3;}
+.quiz-subject{font-size:12px;color:var(--gray-400);margin-top:1px;}
+.quiz-meta{display:flex;gap:12px;flex-wrap:wrap;}
+.quiz-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--gray-600);}
+.quiz-meta-item svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:500;}
+.badge.green{background:var(--green-50);color:var(--green-700);}
+.badge.red{background:var(--red-light);color:#b91c1c;}
+.badge.amber{background:var(--amber-light);color:#92400e;}
+.badge.blue{background:var(--blue-light);color:var(--blue);}
+.badge.gray{background:var(--gray-100);color:var(--gray-600);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;border:none;transition:background 0.15s,transform 0.1s;text-decoration:none;white-space:nowrap;}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:var(--green-600);color:#fff;}
+.btn-primary:hover{background:var(--green-700);}
+.btn-secondary{background:#fff;color:var(--gray-700);border:1px solid var(--gray-200);}
+.btn-secondary:hover{background:var(--gray-50);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-full{width:100%;justify-content:center;}
+
+/* ── Quiz taking screen ── */
+.quiz-shell{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start;max-width:1060px;margin:0 auto;padding:2rem 1.5rem;}
+
+/* Header bar inside quiz */
+.quiz-header-bar{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+.quiz-header-title{font-size:15px;font-weight:600;color:var(--gray-800);flex:1;}
+.quiz-header-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.timer-box{display:flex;align-items:center;gap:6px;background:var(--red-light);border:1px solid #fca5a5;border-radius:var(--radius-sm);padding:5px 11px;}
+.timer-box svg{width:14px;height:14px;stroke:var(--red);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.timer-box span{font-size:14px;font-weight:600;color:var(--red);font-variant-numeric:tabular-nums;min-width:48px;}
+.timer-box.warn{background:#fef3c7;border-color:#fcd34d;}
+.timer-box.warn svg,.timer-box.warn span{color:var(--amber);}
+.timer-box.ok{background:var(--green-50);border-color:var(--green-200);}
+.timer-box.ok svg,.timer-box.ok span{color:var(--green-600);}
+.progress-meta{font-size:12.5px;color:var(--gray-400);}
+
+/* Question card */
+.question-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.5rem;margin-bottom:12px;}
+.question-num{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-400);margin-bottom:6px;}
+.question-text{font-size:15px;font-weight:500;color:var(--gray-800);line-height:1.55;margin-bottom:1.25rem;}
+.question-img{width:100%;max-height:220px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--gray-200);margin-bottom:1.25rem;}
+.question-points{display:inline-block;font-size:11.5px;font-weight:500;color:var(--green-700);background:var(--green-50);padding:2px 8px;border-radius:20px;margin-bottom:1rem;}
+
+/* Choice options */
+.choices{display:flex;flex-direction:column;gap:8px;}
+.choice{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+.choice:hover{border-color:var(--green-300);background:var(--green-50);}
+.choice.selected{border-color:var(--green-500);background:var(--green-50);}
+.choice.correct{border-color:#16a34a;background:#f0fdf4;}
+.choice.wrong{border-color:var(--red);background:var(--red-light);}
+.choice-marker{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--gray-300);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--gray-400);flex-shrink:0;transition:all 0.15s;}
+.choice.selected .choice-marker{border-color:var(--green-500);background:var(--green-500);color:#fff;}
+.choice.correct .choice-marker{border-color:#16a34a;background:#16a34a;color:#fff;}
+.choice.wrong .choice-marker{border-color:var(--red);background:var(--red);color:#fff;}
+.choice-text{font-size:13.5px;color:var(--gray-800);line-height:1.4;}
+
+/* True/False */
+.tf-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tf-btn{padding:12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-weight:500;color:var(--gray-700);background:#fff;font-family:'Inter',sans-serif;transition:all 0.15s;text-align:center;}
+.tf-btn:hover{border-color:var(--green-300);background:var(--green-50);color:var(--green-700);}
+.tf-btn.selected{border-color:var(--green-500);background:var(--green-50);color:var(--green-700);}
+.tf-btn.correct{border-color:#16a34a;background:#f0fdf4;color:#16a34a;}
+.tf-btn.wrong{border-color:var(--red);background:var(--red-light);color:var(--red);}
+
+/* Fill in blank */
+.fill-input{width:100%;padding:10px 13px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:14px;font-family:'Inter',sans-serif;color:var(--gray-800);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+.fill-input:focus{border-color:var(--green-400);box-shadow:0 0 0 3px rgba(47,125,60,0.10);}
+.fill-input.correct{border-color:#16a34a;background:#f0fdf4;}
+.fill-input.wrong{border-color:var(--red);background:var(--red-light);}
+
+/* Essay */
+.essay-textarea{width:100%;padding:10px 13px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13.5px;font-family:'Inter',sans-serif;color:var(--gray-800);outline:none;resize:vertical;min-height:120px;transition:border-color 0.15s,box-shadow 0.15s;}
+.essay-textarea:focus{border-color:var(--green-400);box-shadow:0 0 0 3px rgba(47,125,60,0.10);}
+.word-count{font-size:11.5px;color:var(--gray-400);margin-top:5px;text-align:right;}
+
+/* Nav buttons */
+.question-nav{display:flex;align-items:center;justify-content:space-between;margin-top:16px;flex-wrap:wrap;gap:10px;}
+.question-nav-left{display:flex;gap:8px;}
+
+/* Sidebar panel */
+.quiz-sidebar{display:flex;flex-direction:column;gap:12px;position:sticky;top:20px;}
+.sidebar-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1rem;}
+.sidebar-title{font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--gray-400);margin-bottom:10px;}
+.q-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.q-dot{width:32px;height:32px;border-radius:var(--radius-sm);border:1.5px solid var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--gray-500);cursor:pointer;transition:all 0.13s;background:#fff;}
+.q-dot:hover{border-color:var(--green-300);color:var(--green-700);}
+.q-dot.answered{background:var(--green-500);border-color:var(--green-500);color:#fff;}
+.q-dot.current{border-color:var(--green-600);color:var(--green-700);font-weight:600;box-shadow:0 0 0 2px var(--green-100);}
+.q-dot.flagged{background:var(--amber-light);border-color:var(--amber);color:var(--amber);}
+
+.legend-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--gray-600);margin-bottom:5px;}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+
+/* ── Result screen ── */
+.result-container{max-width:680px;margin:0 auto;padding:2.5rem 1.5rem;}
+.result-hero{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:2rem;text-align:center;margin-bottom:1.25rem;}
+.result-score-circle{width:120px;height:120px;border-radius:50%;margin:0 auto 1.25rem;display:flex;flex-direction:column;align-items:center;justify-content:center;border:4px solid var(--green-400);background:var(--green-50);}
+.result-score-circle.fail{border-color:var(--red);background:var(--red-light);}
+.result-score-circle .score-num{font-size:2rem;font-weight:600;color:var(--green-700);line-height:1;}
+.result-score-circle.fail .score-num{color:var(--red);}
+.result-score-circle .score-label{font-size:11px;color:var(--gray-400);margin-top:2px;}
+.result-title{font-size:1.2rem;font-weight:600;color:var(--gray-800);margin-bottom:4px;}
+.result-sub{font-size:13px;color:var(--gray-400);}
+.result-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:1.5rem;}
+.result-stat{padding:12px;background:var(--gray-50);border-radius:var(--radius-sm);border:1px solid var(--gray-200);text-align:center;}
+.result-stat-num{font-size:1.3rem;font-weight:600;color:var(--gray-800);}
+.result-stat-label{font-size:11px;color:var(--gray-400);margin-top:2px;}
+
+.review-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:10px;}
+.review-q-num{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray-400);margin-bottom:4px;}
+.review-q-text{font-size:13.5px;font-weight:500;color:var(--gray-800);margin-bottom:10px;line-height:1.4;}
+.review-answer{display:flex;align-items:center;gap:8px;font-size:13px;}
+.review-answer svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.review-answer.correct svg{stroke:#16a34a;}
+.review-answer.wrong svg{stroke:var(--red);}
+.review-answer .label{font-weight:500;}
+.review-answer.correct .label{color:#16a34a;}
+.review-answer.wrong .label{color:var(--red);}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(10,31,15,0.45);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:var(--radius-lg);width:100%;max-width:420px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.18);animation:slideUp 0.2s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:15px;font-weight:600;color:var(--gray-800);}
+.modal-body{padding:1.5rem;}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--gray-200);display:flex;align-items:center;justify-content:flex-end;gap:8px;}
+
+/* Toast */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--gray-800);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;opacity:0;transform:translateY(8px);transition:opacity 0.25s,transform 0.25s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{background:var(--green-700);}
+.toast.error{background:#b91c1c;}
+
+/* Progress bar */
+.prog-bar{background:var(--gray-100);border-radius:20px;height:5px;overflow:hidden;margin-bottom:4px;}
+.prog-fill{height:100%;border-radius:20px;background:var(--green-500);transition:width 0.3s;}
+
+@media(max-width:768px){
+  .quiz-shell{grid-template-columns:1fr;}
+  .quiz-sidebar{position:static;}
+  .result-stats{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ TOPBAR ══════════════ -->
+<div class="topbar" id="main-topbar">
+  <a href="student-dashboard.html" class="back-btn">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </a>
+  <div class="topbar-brand" style="margin-left:8px">
+    <div class="brand-logo"><span>TCM</span></div>
+    <div><div class="brand-name">TCM LMS</div><div class="brand-sub">Quiz &amp; Examination</div></div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-user">
+    <div class="user-av">JD</div>
+    <div><div class="uname">Juan dela Cruz</div><div class="urole">BSIT 3-B</div></div>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 1 — QUIZ LIST ══════════════ -->
+<div id="screen-list">
+  <div class="container">
+    <div class="page-title">Quiz &amp; Examinations</div>
+    <div class="page-sub">View and take your available assessments</div>
+
+    <div class="filter-row">
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input placeholder="Search assessment…" oninput="filterQuizzes(this.value)" />
+      </div>
+      <select onchange="filterByType(this.value)">
+        <option value="">All Types</option>
+        <option value="Quiz">Quiz</option>
+        <option value="Exam">Examination</option>
+      </select>
+      <select>
+        <option>All Subjects</option>
+        <option>IT311 Web Dev</option>
+        <option>IT312 Database</option>
+        <option>IT313 Networks</option>
+        <option>GE401 Ethics</option>
+      </select>
+    </div>
+
+    <div class="quiz-grid" id="quiz-grid">
+
+      <!-- Available -->
+      <div class="quiz-card" data-type="Quiz" data-status="open">
+        <div class="quiz-card-head">
+          <div class="quiz-type-icon" style="background:var(--amber-light);color:var(--amber)">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <span class="badge green">Open</span>
+        </div>
+        <div>
+          <div class="quiz-title">Quiz 3 — SQL Joins &amp; Subqueries</div>
+          <div class="quiz-subject">IT312 Database Management · Romeo Caber</div>
+        </div>
+        <div class="quiz-meta">
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>30 mins</span>
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>20 items</span>
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>20 pts</span>
+        </div>
+        <div style="font-size:12px;color:var(--red);font-weight:500">Due: Jun 28, 2026 · 11:59 PM</div>
+        <button class="btn btn-primary btn-full" onclick="startQuiz('Quiz 3 — SQL Joins & Subqueries','IT312 Database',30,20)">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Start Quiz
+        </button>
+      </div>
+
+      <div class="quiz-card" data-type="Exam" data-status="open">
+        <div class="quiz-card-head">
+          <div class="quiz-type-icon" style="background:var(--red-light);color:var(--red)">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <span class="badge green">Open</span>
+        </div>
+        <div>
+          <div class="quiz-title">Pre-Final Exam — Web Systems</div>
+          <div class="quiz-subject">IT311 Web Dev · Lourdes Siaton</div>
+        </div>
+        <div class="quiz-meta">
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>90 mins</span>
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>50 items</span>
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>50 pts</span>
+        </div>
+        <div style="font-size:12px;color:var(--red);font-weight:500">Due: Jun 30, 2026 · 5:00 PM</div>
+        <button class="btn btn-primary btn-full" onclick="startQuiz('Pre-Final Exam — Web Systems','IT311 Web Dev',90,50)">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Start Exam
+        </button>
+      </div>
+
+      <div class="quiz-card" data-type="Quiz" data-status="open">
+        <div class="quiz-card-head">
+          <div class="quiz-type-icon" style="background:var(--blue-light);color:var(--blue)">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <span class="badge green">Open</span>
+        </div>
+        <div>
+          <div class="quiz-title">Quiz 2 — Network Topologies</div>
+          <div class="quiz-subject">IT313 Computer Networks · Ana Reyes</div>
+        </div>
+        <div class="quiz-meta">
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>20 mins</span>
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>15 items</span>
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>15 pts</span>
+        </div>
+        <div style="font-size:12px;color:var(--amber);font-weight:500">Due: Jul 1, 2026 · 11:59 PM</div>
+        <button class="btn btn-primary btn-full" onclick="startQuiz('Quiz 2 — Network Topologies','IT313 Networks',20,15)">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Start Quiz
+        </button>
+      </div>
+
+      <!-- Completed -->
+      <div class="quiz-card" style="opacity:0.7" data-type="Quiz" data-status="done">
+        <div class="quiz-card-head">
+          <div class="quiz-type-icon" style="background:var(--gray-100);color:var(--gray-400)">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <span class="badge gray">Completed</span>
+        </div>
+        <div>
+          <div class="quiz-title">Quiz 2 — CSS &amp; Flexbox</div>
+          <div class="quiz-subject">IT311 Web Dev · Lourdes Siaton</div>
+        </div>
+        <div class="quiz-meta">
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>20 mins</span>
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>15 items</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;color:var(--gray-400)">Submitted Jun 15</span>
+          <span style="font-size:14px;font-weight:600;color:var(--green-600)">14/15</span>
+        </div>
+        <button class="btn btn-secondary btn-full" onclick="showReview()">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Review Answers
+        </button>
+      </div>
+
+      <div class="quiz-card" style="opacity:0.7" data-type="Exam" data-status="done">
+        <div class="quiz-card-head">
+          <div class="quiz-type-icon" style="background:var(--gray-100);color:var(--gray-400)">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <span class="badge gray">Completed</span>
+        </div>
+        <div>
+          <div class="quiz-title">Midterm Exam — Web Systems</div>
+          <div class="quiz-subject">IT311 Web Dev · Lourdes Siaton</div>
+        </div>
+        <div class="quiz-meta">
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>90 mins</span>
+          <span class="quiz-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>50 items</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;color:var(--gray-400)">Submitted Jun 20</span>
+          <span style="font-size:14px;font-weight:600;color:var(--green-600)">45/50</span>
+        </div>
+        <button class="btn btn-secondary btn-full" onclick="showReview()">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Review Answers
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 2 — QUIZ TAKING ══════════════ -->
+<div id="screen-quiz">
+  <div class="quiz-shell">
+    <div class="quiz-main">
+
+      <!-- Header bar -->
+      <div class="quiz-header-bar">
+        <div class="quiz-header-title" id="quiz-title-bar">Quiz 3 — SQL Joins</div>
+        <div class="quiz-header-meta">
+          <div>
+            <div class="prog-bar" style="width:160px"><div class="prog-fill" id="progress-fill" style="width:10%"></div></div>
+            <div class="progress-meta" id="progress-label">Question 1 of 10</div>
+          </div>
+          <div class="timer-box ok" id="timer-box">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span id="timer-display">30:00</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="openModal('flag-modal')" title="Flag for review">
+            <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            Flag
+          </button>
+        </div>
+      </div>
+
+      <!-- Question display area -->
+      <div id="question-area"></div>
+
+      <!-- Navigation -->
+      <div class="question-nav">
+        <div class="question-nav-left">
+          <button class="btn btn-secondary" id="btn-prev" onclick="prevQuestion()">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Previous
+          </button>
+          <button class="btn btn-secondary" id="btn-next" onclick="nextQuestion()">
+            Next<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <button class="btn btn-primary" id="btn-submit" onclick="openModal('submit-modal')" style="display:none">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit Quiz
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="quiz-sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-title">Questions</div>
+        <div class="q-grid" id="q-grid"></div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:4px;">
+          <div class="legend-row"><div class="legend-dot" style="background:var(--green-500)"></div>Answered</div>
+          <div class="legend-row"><div class="legend-dot" style="background:var(--amber)"></div>Flagged</div>
+          <div class="legend-row"><div class="legend-dot" style="background:#fff;border:1.5px solid var(--gray-200)"></div>Not answered</div>
+        </div>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-title">Summary</div>
+        <div style="font-size:13px;color:var(--gray-700);display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;justify-content:space-between"><span>Answered</span><strong id="count-answered" style="color:var(--green-600)">0</strong></div>
+          <div style="display:flex;justify-content:space-between"><span>Flagged</span><strong id="count-flagged" style="color:var(--amber)">0</strong></div>
+          <div style="display:flex;justify-content:space-between"><span>Skipped</span><strong id="count-skipped" style="color:var(--gray-400)">10</strong></div>
+        </div>
+      </div>
+      <button class="btn btn-danger" style="width:100%;justify-content:center;background:var(--red-light);color:#b91c1c;" onclick="openModal('submit-modal')">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit Now
+      </button>
+    </aside>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 3 — RESULT ══════════════ -->
+<div id="screen-result">
+  <div class="result-container">
+    <div class="result-hero">
+      <div class="result-score-circle" id="result-circle">
+        <div class="score-num" id="result-score-num">85%</div>
+        <div class="score-label">Score</div>
+      </div>
+      <div class="result-title" id="result-title">Quiz 3 — SQL Joins & Subqueries</div>
+      <div class="result-sub" id="result-sub">IT312 Database Management · Submitted Jun 27, 2026</div>
+      <div class="result-stats">
+        <div class="result-stat"><div class="result-stat-num" id="rs-correct" style="color:var(--green-600)">17</div><div class="result-stat-label">Correct</div></div>
+        <div class="result-stat"><div class="result-stat-num" id="rs-wrong" style="color:var(--red)">3</div><div class="result-stat-label">Wrong</div></div>
+        <div class="result-stat"><div class="result-stat-num" id="rs-points">17/20</div><div class="result-stat-label">Points</div></div>
+        <div class="result-stat"><div class="result-stat-num" id="rs-time">18:42</div><div class="result-stat-label">Time Used</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:1.25rem;">
+      <button class="btn btn-primary" onclick="showScreen('list')">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to List
+      </button>
+      <button class="btn btn-secondary" onclick="toggleReview()">
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Review Answers
+      </button>
+    </div>
+
+    <div id="review-section" style="display:none">
+      <div style="font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">Answer Review</div>
+      <div class="review-card">
+        <div class="review-q-num">Question 1</div>
+        <div class="review-q-text">What SQL keyword is used to combine rows from two or more tables based on a related column?</div>
+        <div class="review-answer correct"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span class="label">Your answer: JOIN</span></div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:4px;padding-left:23px">Correct answer: JOIN</div>
+      </div>
+      <div class="review-card">
+        <div class="review-q-num">Question 2</div>
+        <div class="review-q-text">Which type of JOIN returns all records from the left table and matched records from the right table?</div>
+        <div class="review-answer wrong"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="label">Your answer: INNER JOIN</span></div>
+        <div style="font-size:12px;color:var(--green-600);margin-top:4px;padding-left:23px;font-weight:500">Correct answer: LEFT JOIN</div>
+      </div>
+      <div class="review-card">
+        <div class="review-q-num">Question 3</div>
+        <div class="review-q-text">A subquery is a query nested inside another query. True or False?</div>
+        <div class="review-answer correct"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span class="label">Your answer: True</span></div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:4px;padding-left:23px">Correct answer: True</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT MODAL -->
+<div class="modal-overlay" id="submit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Submit Quiz?</div>
+      <button class="btn" style="background:none;border:none;cursor:pointer;padding:4px;" onclick="closeModal('submit-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;padding:0.5rem 0 1rem">
+        <div style="font-size:2rem;margin-bottom:8px">📋</div>
+        <div style="font-size:14px;font-weight:500;color:var(--gray-800);margin-bottom:6px">Are you sure you want to submit?</div>
+        <div style="font-size:13px;color:var(--gray-400)">You have <strong id="unanswered-count" style="color:var(--amber)">0 unanswered</strong> questions. Once submitted, you cannot change your answers.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('submit-modal')">Continue Quiz</button>
+      <button class="btn btn-primary" onclick="submitQuiz()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Yes, Submit
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- FLAG MODAL -->
+<div class="modal-overlay" id="flag-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Flag Question</div><button class="btn" style="background:none;border:none;cursor:pointer;padding:4px;" onclick="closeModal('flag-modal')">✕</button></div>
+    <div class="modal-body" style="font-size:13.5px;color:var(--gray-700)">This question will be marked for review. You can come back to it before submitting.</div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('flag-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="flagCurrent()">Flag for Review</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════
+   QUIZ DATA
+══════════════════════════════════════ */
+const questions = [
+  {
+    type: 'multiple',
+    text: 'What SQL keyword is used to combine rows from two or more tables based on a related column?',
+    points: 2,
+    choices: ['SELECT','JOIN','MERGE','COMBINE'],
+    correct: 1
+  },
+  {
+    type: 'multiple',
+    text: 'Which type of JOIN returns all records from the left table and matched records from the right table?',
+    points: 2,
+    choices: ['INNER JOIN','RIGHT JOIN','LEFT JOIN','FULL JOIN'],
+    correct: 2
+  },
+  {
+    type: 'truefalse',
+    text: 'A subquery is a query nested inside another query.',
+    points: 1,
+    correct: true
+  },
+  {
+    type: 'multiple',
+    text: 'Which SQL clause is used to filter the results of an aggregate function?',
+    points: 2,
+    choices: ['WHERE','FILTER','HAVING','GROUP BY'],
+    correct: 2
+  },
+  {
+    type: 'fill',
+    text: 'The SQL keyword ________ is used to remove duplicate values from a SELECT result.',
+    points: 2,
+    correct: 'DISTINCT'
+  },
+  {
+    type: 'multiple',
+    text: 'What does the INNER JOIN return?',
+    points: 2,
+    choices: ['All rows from both tables','Only rows with matching values in both tables','All rows from left table','All rows from right table'],
+    correct: 1
+  },
+  {
+    type: 'truefalse',
+    text: 'The CROSS JOIN produces a Cartesian product of two tables.',
+    points: 1,
+    correct: true
+  },
+  {
+    type: 'multiple',
+    text: 'Which aggregate function returns the number of rows?',
+    points: 2,
+    choices: ['SUM()','AVG()','MAX()','COUNT()'],
+    correct: 3
+  },
+  {
+    type: 'fill',
+    text: 'A ________ JOIN returns all rows when there is a match in either left or right table.',
+    points: 2,
+    correct: 'FULL OUTER'
+  },
+  {
+    type: 'essay',
+    text: 'Briefly explain the difference between a correlated subquery and a non-correlated subquery. Provide one example for each.',
+    points: 5
+  }
+];
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let currentQ   = 0;
+let answers    = new Array(questions.length).fill(null);
+let flagged    = new Set();
+let timerSecs  = 0;
+let timerInterval = null;
+let quizName   = '';
+let quizSubject = '';
+
+/* ══════════════════════════════════════
+   SCREENS
+══════════════════════════════════════ */
+function showScreen(name) {
+  document.getElementById('screen-list').style.display   = name==='list'   ? 'block' : 'none';
+  document.getElementById('screen-quiz').style.display   = name==='quiz'   ? 'block' : 'none';
+  document.getElementById('screen-result').style.display = name==='result' ? 'block' : 'none';
+}
+
+/* ══════════════════════════════════════
+   START QUIZ
+══════════════════════════════════════ */
+function startQuiz(name, subject, mins, totalPts) {
+  quizName    = name;
+  quizSubject = subject;
+  currentQ    = 0;
+  answers     = new Array(questions.length).fill(null);
+  flagged     = new Set();
+  timerSecs   = mins * 60;
+
+  document.getElementById('quiz-title-bar').textContent = name;
+  buildQGrid();
+  renderQuestion();
+  startTimer();
+  showScreen('quiz');
+}
+
+/* ══════════════════════════════════════
+   TIMER
+══════════════════════════════════════ */
+function startTimer() {
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timerSecs--;
+    updateTimerDisplay();
+    if (timerSecs <= 0) { clearInterval(timerInterval); submitQuiz(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerSecs / 60);
+  const s = timerSecs % 60;
+  const str = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  document.getElementById('timer-display').textContent = str;
+  const box = document.getElementById('timer-box');
+  box.className = 'timer-box';
+  if (timerSecs <= 300) box.classList.add('red');
+  else if (timerSecs <= 600) box.classList.add('warn');
+  else box.classList.add('ok');
+}
+
+/* ══════════════════════════════════════
+   QUESTION GRID
+══════════════════════════════════════ */
+function buildQGrid() {
+  const grid = document.getElementById('q-grid');
+  grid.innerHTML = '';
+  questions.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot' + (i === 0 ? ' current' : '');
+    d.id = 'qdot-' + i;
+    d.textContent = i + 1;
+    d.onclick = () => goToQ(i);
+    grid.appendChild(d);
+  });
+}
+
+function updateQGrid() {
+  questions.forEach((_, i) => {
+    const d = document.getElementById('qdot-' + i);
+    if (!d) return;
+    d.className = 'q-dot';
+    if (i === currentQ) d.classList.add('current');
+    else if (flagged.has(i)) d.classList.add('flagged');
+    else if (answers[i] !== null && answers[i] !== '') d.classList.add('answered');
+  });
+  // update counts
+  const ans = answers.filter(a => a !== null && a !== '').length;
+  document.getElementById('count-answered').textContent = ans;
+  document.getElementById('count-flagged').textContent  = flagged.size;
+  document.getElementById('count-skipped').textContent  = questions.length - ans;
+  // progress bar
+  const pct = ((currentQ + 1) / questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Question ${currentQ + 1} of ${questions.length}`;
+}
+
+/* ══════════════════════════════════════
+   RENDER QUESTION
+══════════════════════════════════════ */
+function renderQuestion() {
+  const q = questions[currentQ];
+  const labels = ['A','B','C','D'];
+  let html = `
+    <div class="question-card">
+      <div class="question-num">Question ${currentQ + 1} of ${questions.length}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="question-points">${q.points} point${q.points > 1 ? 's' : ''}</div>`;
+
+  if (q.type === 'multiple') {
+    html += '<div class="choices">';
+    q.choices.forEach((c, i) => {
+      const sel = answers[currentQ] === i ? 'selected' : '';
+      html += `<div class="choice ${sel}" onclick="selectChoice(${i})">
+        <div class="choice-marker">${labels[i]}</div>
+        <div class="choice-text">${c}</div>
+      </div>`;
+    });
+    html += '</div>';
+  } else if (q.type === 'truefalse') {
+    const tv = answers[currentQ];
+    html += `<div class="tf-choices">
+      <button class="tf-btn ${tv === true ? 'selected' : ''}" onclick="selectTF(true)">✓ True</button>
+      <button class="tf-btn ${tv === false ? 'selected' : ''}" onclick="selectTF(false)">✗ False</button>
+    </div>`;
+  } else if (q.type === 'fill') {
+    const val = answers[currentQ] || '';
+    html += `<input class="fill-input" type="text" placeholder="Type your answer here…" value="${val}"
+      oninput="answers[currentQ]=this.value;updateQGrid()" />`;
+  } else if (q.type === 'essay') {
+    const val = answers[currentQ] || '';
+    const wc  = val.trim() ? val.trim().split(/\s+/).length : 0;
+    html += `<textarea class="essay-textarea" placeholder="Write your answer here…" oninput="answers[currentQ]=this.value;updateEssayCount(this)">${val}</textarea>
+      <div class="word-count" id="essay-wc">${wc} words</div>`;
+  }
+
+  html += '</div>';
+  document.getElementById('question-area').innerHTML = html;
+
+  // Nav buttons
+  document.getElementById('btn-prev').disabled = currentQ === 0;
+  const isLast = currentQ === questions.length - 1;
+  document.getElementById('btn-next').style.display  = isLast ? 'none' : '';
+  document.getElementById('btn-submit').style.display = isLast ? '' : 'none';
+  updateQGrid();
+}
+
+function updateEssayCount(el) {
+  const wc = el.value.trim() ? el.value.trim().split(/\s+/).length : 0;
+  const wcel = document.getElementById('essay-wc');
+  if (wcel) wcel.textContent = wc + ' words';
+  updateQGrid();
+}
+
+/* ══════════════════════════════════════
+   ANSWER SELECTION
+══════════════════════════════════════ */
+function selectChoice(i) {
+  answers[currentQ] = i;
+  renderQuestion();
+}
+
+function selectTF(val) {
+  answers[currentQ] = val;
+  renderQuestion();
+}
+
+/* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+function nextQuestion() { if (currentQ < questions.length - 1) { currentQ++; renderQuestion(); } }
+function prevQuestion() { if (currentQ > 0) { currentQ--; renderQuestion(); } }
+function goToQ(i) { currentQ = i; renderQuestion(); }
+
+/* ══════════════════════════════════════
+   FLAG
+══════════════════════════════════════ */
+function flagCurrent() {
+  if (flagged.has(currentQ)) flagged.delete(currentQ);
+  else flagged.add(currentQ);
+  closeModal('flag-modal');
+  updateQGrid();
+  showToast(flagged.has(currentQ) ? 'Question flagged for review' : 'Flag removed');
+}
+
+/* ══════════════════════════════════════
+   SUBMIT
+══════════════════════════════════════ */
+function openModal(id) {
+  if (id === 'submit-modal') {
+    const unanswered = answers.filter(a => a === null || a === '').length;
+    document.getElementById('unanswered-count').textContent = unanswered + ' unanswered';
+  }
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+async function submitQuiz() {
+  clearInterval(timerInterval);
+  closeModal('submit-modal');
+
+  const token      = localStorage.getItem('tcm_token') || '';
+  const activityId = window._activeActivityId || 0;
+  const timeUsed   = formatTimeDiff();
+  const timeSecs   = Math.abs(timerSecs - 1800);
+
+  // Build answers array for the API
+  const apiAnswers = questions.map((q, i) => {
+    const base = { question_id: q.id || (i + 1), was_flagged: flagged[i] || false };
+    if (q.type === 'multiple')  return { ...base, choice_index: answers[i] ?? null };
+    if (q.type === 'truefalse') return { ...base, boolean_answer: answers[i] ?? null };
+    return { ...base, text_answer: answers[i] ?? '' };
+  });
+
+  // Local score for immediate display (mirrors backend scoring)
+  let correct = 0, total = 0;
+  questions.forEach((q, i) => {
+    if (q.type === 'essay') return;
+    total++;
+    if (q.type === 'multiple'  && answers[i] === q.correct) correct++;
+    else if (q.type === 'truefalse' && answers[i] === q.correct) correct++;
+    else if (q.type === 'fill' && answers[i] &&
+             answers[i].toUpperCase().trim() === (q.correct||'').toUpperCase()) correct++;
+  });
+
+  const wrong  = total - correct;
+  const pct    = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const passed = pct >= 70;
+
+  // Update results screen immediately (don't wait for network)
+  document.getElementById('result-title').textContent = quizName;
+  document.getElementById('result-sub').textContent   = quizSubject + ' · Submitted';
+  document.getElementById('result-score-num').textContent = pct + '%';
+  document.getElementById('rs-correct').textContent = correct;
+  document.getElementById('rs-wrong').textContent   = wrong;
+  document.getElementById('rs-points').textContent  = correct + '/' + total;
+  document.getElementById('rs-time').textContent    = timeUsed;
+  const circle = document.getElementById('result-circle');
+  circle.className = 'result-score-circle' + (passed ? '' : ' fail');
+  showScreen('result');
+
+  // Submit to backend non-blocking — results already shown
+  if (activityId && token) {
+    try {
+      await fetch('api/submissions/quiz_submit.php', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body:    JSON.stringify({
+          activity_id:        activityId,
+          time_taken_seconds: timeSecs,
+          answers:            apiAnswers
+        })
+      });
+    } catch(_) {}
+  }
+}
+
+function formatTimeDiff() {
+  // approximate
+  const used = Math.abs(timerSecs - 1800);
+  const m = Math.floor(used / 60); const s = used % 60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+/* ══════════════════════════════════════
+   REVIEW (from list)
+══════════════════════════════════════ */
+function showReview() {
+  showScreen('result');
+  document.getElementById('result-title').textContent = 'Quiz 2 — CSS & Flexbox';
+  document.getElementById('result-sub').textContent = 'IT311 Web Dev · Submitted Jun 15, 2026';
+  document.getElementById('result-score-num').textContent = '93%';
+  document.getElementById('rs-correct').textContent = '14';
+  document.getElementById('rs-wrong').textContent = '1';
+  document.getElementById('rs-points').textContent = '14/15';
+  document.getElementById('rs-time').textContent = '17:24';
+  document.getElementById('result-circle').className = 'result-score-circle';
+  document.getElementById('review-section').style.display = 'block';
+}
+
+function toggleReview() {
+  const s = document.getElementById('review-section');
+  s.style.display = s.style.display === 'none' ? 'block' : 'none';
+}
+
+/* ══════════════════════════════════════
+   FILTER (list)
+══════════════════════════════════════ */
+function filterQuizzes(q) {
+  document.querySelectorAll('.quiz-card').forEach(c => {
+    const title = c.querySelector('.quiz-title').textContent.toLowerCase();
+    c.style.display = title.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+function filterByType(type) {
+  document.querySelectorAll('.quiz-card').forEach(c => {
+    c.style.display = (!type || c.dataset.type === type) ? '' : 'none';
+  });
+}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+let toastTimer;
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast' + (type ? ' '+type : '');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Auth guard: redirect to login if no session token ──────────────────────
+(function guardAuth() {
+  const token = localStorage.getItem('tcm_token');
+  const role  = localStorage.getItem('tcm_role');
+  if (!token || role !== 'student') {
+    window.location.href = 'tcm-lms-login.html';
+    return;
+  }
+  // Hydrate displayed user name from localStorage (no network round-trip)
+  const user = localStorage.getItem('tcm_user');
+  if (user) {
+    try {
+      const u   = JSON.parse(user);
+      const el  = document.querySelector('.uname');
+      if (el) el.textContent = u.full_name || u.first_name || el.textContent;
+    } catch(_) {}
+  }
+})();
+
+// ── Notifications: fetch unread count on load, update bell badge ────────────
+async function loadNotifications() {
+  const token = localStorage.getItem('tcm_token') || '';
+  if (!token) return;
+  try {
+    const res  = await fetch('api/notifications/index.php?unread_only=1&limit=10', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success) return;
+
+    // Update bell badge count
+    const count   = json.data.unread_count || 0;
+    const badges  = document.querySelectorAll('.notif-badge, .bell-badge, [data-notif-count]');
+    badges.forEach(b => {
+      b.textContent = count > 9 ? '9+' : count;
+      b.style.display = count > 0 ? '' : 'none';
+    });
+
+    // If there is a notifications dropdown, populate it
+    const list = document.getElementById('notif-list');
+    if (list && json.data.notifications.length) {
+      list.innerHTML = json.data.notifications.slice(0, 5).map(n => `
+        <div class="notif-item${n.is_read ? '' : ' unread'}"
+             onclick="markNotifRead(${n.notification_id}, this)">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-body">${n.body || ''}</div>
+          <div class="notif-time">${new Date(n.created_at).toLocaleString()}</div>
+        </div>`).join('');
+    }
+  } catch(_) { /* non-fatal */ }
+}
+
+async function markNotifRead(id, el) {
+  const token = localStorage.getItem('tcm_token') || '';
+  el.classList.remove('unread');
+  try {
+    await fetch('api/notifications/index.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'mark_read', notification_id: id })
+    });
+    await loadNotifications(); // refresh badge count
+  } catch(_) {}
+}
+
+// Run on load
+loadNotifications();
+</script>
+</body>
+</html>
